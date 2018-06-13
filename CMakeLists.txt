@@ -26,5 +26,5 @@ set(THIRD_PARTY_LIBS
         g2o_core g2o_stuff g2o_types_sba
         )
 
-add_executable(sfm_learn main.cpp)
+add_executable(sfm_learn main.cpp Camera.cpp Camera.h common_include.h Frame.cpp Frame.h MapPoint.cpp MapPoint.h Map.cpp Map.h)
 target_link_libraries(sfm_learn ${THIRD_PARTY_LIBS})
