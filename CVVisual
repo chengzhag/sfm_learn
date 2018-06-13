@@ -1,0 +1,9 @@
+[STFLEngine]
+Overview\settings=raw
+
+[default_views]
+default_filter_view=DefaultFilterView
+
+[overview]
+imgsize=100
+imgzoom=20
