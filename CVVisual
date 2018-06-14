@@ -1,9 +1,11 @@
 [STFLEngine]
 Overview\settings=raw
+Rawview\settings=group by keypoint_type
 
 [default_views]
 default_filter_view=DefaultFilterView
+default_match_view=LineMatchView
 
 [overview]
 imgsize=100
-imgzoom=20
+imgzoom=45

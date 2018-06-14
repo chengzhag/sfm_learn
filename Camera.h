@@ -6,8 +6,11 @@
 #define SFM_LEARN_CAMERA_H
 
 #include "common_include.h"
+#include "opencv2/opencv.hpp"
 
 namespace sky {
+
+    using namespace cv;
 
     class Camera {
     public:
@@ -30,6 +33,17 @@ namespace sky {
         Vector3d pixel2world(const Vector2d &p_p, const SE3 &T_c_w, double depth = 1);
 
         Vector2d world2pixel(const Vector3d &p_w, const SE3 &T_c_w);
+
+        Point2f pixel2normal(const Point2d& p) const;
+
+        //获取参数
+        float getFocalLength(){
+            return (fx_+fy_)/2;
+        }
+
+        cv::Point2d getPrincipalPoint(){
+            return cv::Point2d(cx_,cy_);
+        }
     };
 
 }

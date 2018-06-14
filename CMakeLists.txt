@@ -42,6 +42,7 @@ set(THIRD_PARTY_LIBS
         g2o_core g2o_stuff g2o_types_sba
         ${Boost_LIBRARIES}
         opencv_cvv
+        opencv_xfeatures2d
         )
 
 add_executable(sfm_learn main.cpp Camera.cpp Camera.h common_include.h Frame.cpp Frame.h MapPoint.cpp MapPoint.h Map.cpp Map.h SFM.cpp SFM.h)

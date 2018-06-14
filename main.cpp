@@ -6,10 +6,15 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/filesystem.hpp>
 
+#include <opencv2/xfeatures2d.hpp>
+
 using namespace sky;
+using namespace cv;
 
 int main() {
-    SFM sfm;
+    //SFM sfm(ORB::create(500,1.2,8));
+    SFM sfm(xfeatures2d::SIFT::create(0, 3, 0.04, 10),
+            DescriptorMatcher::create("BruteForce"));
 
     std::cout << "设置数据集路径：" << std::endl;
     string imagesFolder("datasets/fountain_dense_images");
@@ -41,8 +46,10 @@ int main() {
     }
 
     sfm.addImages(imagesDir, Camera::Ptr(new Camera(
-            2759.48,2764.16,1520.69,1006.81
+            2759.48, 2764.16, 1520.69, 1006.81
     )));
+
+    cvv::finalShow();
 
     return 0;
 }

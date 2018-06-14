@@ -37,6 +37,14 @@ namespace sky {
         return camera2world(pixel2camera(p_p, depth), T_c_w);
     }
 
+    Point2f Camera::pixel2normal(const Point2d &p) const{
+        return Point2f
+                (
+                        (p.x - cx_) / fx_,
+                        (p.y - cy_) / fy_
+                );
+    }
+
 
 }
 
