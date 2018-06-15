@@ -20,22 +20,41 @@ namespace sky {
         vector<DMatch> matches;
         Mat descriptors1, descriptors2;
 
+
         //2D-2D
+#ifdef DEBUG
+        cout << endl << "2D-2D initializing..." << endl << endl;
+#endif
+
         //检测特征点并匹配
         feature2D->detect(frame1->image, keypoints1, cv::noArray());
         feature2D->detect(frame2->image, keypoints2, cv::noArray());
         feature2D->compute(frame1->image, keypoints1, descriptors1);
         feature2D->compute(frame2->image, keypoints2, descriptors2);
         matcher->match(descriptors1, descriptors2, matches, cv::noArray());
-        cvv::debugDMatch(frame1->image, keypoints1, frame2->image, keypoints2, matches, CVVISUAL_LOCATION, "初始化特征点匹配");
-        //TODO:筛选匹配点
+
+        //筛选匹配点
+        auto minMaxDis = std::minmax_element(
+                matches.begin(), matches.end(),
+                [](const cv::DMatch &m1, const cv::DMatch &m2) {
+                    return m1.distance < m2.distance;
+                });
+        auto minDis = minMaxDis.first->distance;
+        auto maxDis = minMaxDis.second->distance;
+        vector<DMatch> goodMatches;
+        for (auto match:matches) {
+            if (match.distance <= 5 * minDis)
+                goodMatches.push_back(match);
+        }
+        cvv::debugDMatch(frame1->image, keypoints1, frame2->image, keypoints2, goodMatches, CVVISUAL_LOCATION,
+                         "2D-2D initialization points matching");
 
         //求解对极约束
         vector<Point2f> points1;
         vector<Point2f> points2;
-        for (int i = 0; i < (int) matches.size(); i++) {
-            points1.push_back(keypoints1[matches[i].queryIdx].pt);
-            points2.push_back(keypoints2[matches[i].trainIdx].pt);
+        for (auto match:goodMatches) {
+            points1.push_back(keypoints1[match.queryIdx].pt);
+            points2.push_back(keypoints2[match.trainIdx].pt);
         }
         Mat fundamentalMatrix;
         fundamentalMatrix = findFundamentalMat(points1, points2, CV_FM_RANSAC);
@@ -43,16 +62,51 @@ namespace sky {
         essentialMatrix = findEssentialMat(points1, points2,
                                            camera->getFocalLength(),
                                            camera->getPrincipalPoint());
-        Mat R, t;
-        recoverPose(essentialMatrix, points1, points2, R, t,
-                    camera->getFocalLength(), camera->getPrincipalPoint());
+        //设置frame1的初始化se3
+        Mat R1 = Mat::eye(3, 3, CV_64FC1), t1 = Mat::zeros(3, 1, CV_64FC1);
+        frame1->T_c_w = SE3(
+                SO3(R1.at<double>(0, 0), R1.at<double>(1, 0), R1.at<double>(2, 0)),
+                Vector3d(t1.at<double>(0, 0), t1.at<double>(1, 0), t1.at<double>(2, 0))
+        );
+#ifdef DEBUG
+        cout << "2D-2D initialization frame1 R: " << R1.size << endl << R1 << endl;
+        cout << "2D-2D initialization frame1 t: " << t1.size << endl << t1 << endl;
+        cout << "2D-2D initialization frame1 SE3: " << endl << frame1->T_c_w << endl;
+#endif
+        //解frame2的R、t并计算se3,三角化
+        Mat R2, t2, points4d;
+/*        recoverPose(essentialMatrix, points1, points2, R2, t2,
+                    camera->getFocalLength(), camera->getPrincipalPoint());*/
+        recoverPose(essentialMatrix, points1, points2,
+                    camera->getIntrinsics(), R2, t2, 0, noArray(),
+                    points4d);
+        frame2->T_c_w = SE3(
+                SO3(R2.at<double>(0, 0), R2.at<double>(1, 0), R2.at<double>(2, 0)),
+                Vector3d(t2.at<double>(0, 0), t2.at<double>(1, 0), t2.at<double>(2, 0))
+        );
+#ifdef DEBUG
+        cout << "2D-2D initialization frame2 R: " << R2.size << endl << R2 << endl;
+        cout << "2D-2D initialization frame2 t: " << t2.size << endl << t2 << endl;
+        cout << "2D-2D initialization frame2 SE3: " << endl << frame2->T_c_w << endl;
+#endif
+
+        //可视化初始化点云
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
 
         //三角化
-        vector<Point3d> points3d;
-        triangulation(keypoints1, keypoints2, matches, R, t, *camera, points3d);
+        //vector<Point3d> points3d;
+/*        Mat proj1(3, 4, CV_32FC1), proj2(3, 4, CV_32FC1);
+        proj1(Range(0, 3), Range(0, 3)) = R1;
+        proj1.col(3) = t1;
+        proj2(Range(0, 3), Range(0, 3)) = R2;
+        proj2.col(3) = t2;
+        triangulatePoints(proj1,proj2,points1,points2,)*/
+
+        //triangulation(keypoints1, keypoints2, goodMatches, R, t, *camera, points3d);
 
 
         frame1 = frame2;
+
 
         for (; imageDirIt != imagesDir.end();
                ++imageDirIt) {

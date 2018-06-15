@@ -34,15 +34,19 @@ namespace sky {
 
         Vector2d world2pixel(const Vector3d &p_w, const SE3 &T_c_w);
 
-        Point2f pixel2normal(const Point2d& p) const;
+        Point2f pixel2normal(const Point2d &p) const;
 
         //获取参数
-        float getFocalLength(){
-            return (fx_+fy_)/2;
+        float getFocalLength() {
+            return (fx_ + fy_) / 2;
         }
 
-        cv::Point2d getPrincipalPoint(){
-            return cv::Point2d(cx_,cy_);
+        cv::Point2d getPrincipalPoint() {
+            return cv::Point2d(cx_, cy_);
+        }
+
+        cv::Matx<float, 3, 3> getIntrinsics() {
+            return cv::Matx<float, 3, 3>(fx_, 0, cx_, 0, fy_, cy_, 0, 0, 1);
         }
     };
 

@@ -13,11 +13,14 @@ using namespace cv;
 
 int main() {
     //SFM sfm(ORB::create(500,1.2,8));
-    SFM sfm(xfeatures2d::SIFT::create(0, 3, 0.04, 10),
+    SFM sfm(xfeatures2d::SIFT::create(1000, 3, 0.04, 10),
             DescriptorMatcher::create("BruteForce"));
 
-    std::cout << "设置数据集路径：" << std::endl;
     string imagesFolder("datasets/fountain_dense_images");
+#ifdef DEBUG
+    std::cout << "Adding images from: " + imagesFolder << std::endl;
+#endif
+
     vector<string> imagesDir;
 
     if (!imagesFolder.empty()) {

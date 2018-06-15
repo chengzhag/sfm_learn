@@ -1,10 +1,10 @@
 [STFLEngine]
-Overview\settings=raw
+Overview\settings=type match, raw
 Rawview\settings=group by keypoint_type
 
 [default_views]
 default_filter_view=DefaultFilterView
-default_match_view=LineMatchView
+default_match_view=TranslationMatchView
 
 [overview]
 imgsize=100
