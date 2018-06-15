@@ -35,6 +35,11 @@ include_directories(${G2O_INCLUDE_DIRS})
 # Boost
 find_package(Boost      REQUIRED COMPONENTS system chrono filesystem unit_test_framework program_options)
 include_directories(${Boost_INCLUDE_DIR})
+# PCL
+find_package(PCL REQUIRED COMPONENTS common io visualization)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 set(THIRD_PARTY_LIBS
         ${OpenCV_LIBS}
@@ -43,6 +48,7 @@ set(THIRD_PARTY_LIBS
         ${Boost_LIBRARIES}
         opencv_cvv
         opencv_xfeatures2d
+        ${PCL_LIBRARIES}
         )
 
 add_executable(sfm_learn main.cpp Camera.cpp Camera.h common_include.h Frame.cpp Frame.h MapPoint.cpp MapPoint.h Map.cpp Map.h SFM.cpp SFM.h)

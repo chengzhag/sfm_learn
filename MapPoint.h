@@ -18,12 +18,15 @@ namespace sky {
         Mat descriptor; // Descriptor for matching
         list<Frame::Ptr> observedFrames;   // key-frames that can observe this point
         Vector3d pos;       // Position in world
+        Vec3b rgb;
+
 
         MapPoint();
 
-        MapPoint(const Vector3d &pos, const Mat &descriptor, const Frame::Ptr &observedFrame) :
+        MapPoint(const Vector3d &pos, const Mat &descriptor, const Vec3b &rgb, const Frame::Ptr &observedFrame) :
                 pos(pos),
-                descriptor(descriptor) {
+                descriptor(descriptor),
+                rgb(rgb) {
             addFrame(observedFrame);
         }
 

@@ -26,18 +26,19 @@ namespace sky {
             const cv::Ptr<DescriptorMatcher> &matcher
         ) :
                 feature2D(feature2D),
-                matcher(matcher)
+                matcher(matcher),
+                map(new Map)
         {}
 
         void addImages(const vector<string> &imagesDir, Camera::Ptr camera);
 
-        void triangulation(
+/*        void triangulation(
                 const vector<KeyPoint> &keypoint_1,
                 const vector<KeyPoint> &keypoint_2,
                 const std::vector<DMatch> &matches,
                 const Mat &R, const Mat &t,
                 const Camera &camera,
-                vector<Point3d> &points);
+                vector<Point3d> &points);*/
     };
 
 }

@@ -5,6 +5,8 @@
 #include "SFM.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/cvv.hpp>
+#include <pcl/common/common_headers.h>
+#include <pcl/visualization/cloud_viewer.h>
 
 using namespace cv;
 
@@ -15,6 +17,8 @@ namespace sky {
         auto imageDirIt = imagesDir.begin();
         Frame::Ptr frame1(new Frame(camera, imread(*imageDirIt++)));
         Frame::Ptr frame2(new Frame(camera, imread(*imageDirIt++)));
+        map->insertFrame(frame1);
+        map->insertFrame(frame2);
 
         vector<cv::KeyPoint> keypoints1, keypoints2;
         vector<DMatch> matches;
@@ -32,7 +36,9 @@ namespace sky {
         feature2D->compute(frame1->image, keypoints1, descriptors1);
         feature2D->compute(frame2->image, keypoints2, descriptors2);
         matcher->match(descriptors1, descriptors2, matches, cv::noArray());
-
+#ifdef DEBUG
+        cout << "found " << matches.size() << " keypoints" << endl;
+#endif
         //筛选匹配点
         auto minMaxDis = std::minmax_element(
                 matches.begin(), matches.end(),
@@ -46,8 +52,14 @@ namespace sky {
             if (match.distance <= 5 * minDis)
                 goodMatches.push_back(match);
         }
+#ifdef DEBUG
+        cout << "found " << goodMatches.size() << " good matches" << endl;
+#endif
         cvv::debugDMatch(frame1->image, keypoints1, frame2->image, keypoints2, goodMatches, CVVISUAL_LOCATION,
-                         "2D-2D initialization points matching");
+                         "2D-2D points matching");
+
+
+
 
         //求解对极约束
         vector<Point2f> points1;
@@ -56,12 +68,11 @@ namespace sky {
             points1.push_back(keypoints1[match.queryIdx].pt);
             points2.push_back(keypoints2[match.trainIdx].pt);
         }
-        Mat fundamentalMatrix;
-        fundamentalMatrix = findFundamentalMat(points1, points2, CV_FM_RANSAC);
-        Mat essentialMatrix;
+        Mat essentialMatrix, inlierMask;
         essentialMatrix = findEssentialMat(points1, points2,
                                            camera->getFocalLength(),
-                                           camera->getPrincipalPoint());
+                                           camera->getPrincipalPoint(),
+                                           RANSAC, 0.999, 1.0, inlierMask);
         //设置frame1的初始化se3
         Mat R1 = Mat::eye(3, 3, CV_64FC1), t1 = Mat::zeros(3, 1, CV_64FC1);
         frame1->T_c_w = SE3(
@@ -69,44 +80,102 @@ namespace sky {
                 Vector3d(t1.at<double>(0, 0), t1.at<double>(1, 0), t1.at<double>(2, 0))
         );
 #ifdef DEBUG
-        cout << "2D-2D initialization frame1 R: " << R1.size << endl << R1 << endl;
-        cout << "2D-2D initialization frame1 t: " << t1.size << endl << t1 << endl;
-        cout << "2D-2D initialization frame1 SE3: " << endl << frame1->T_c_w << endl;
+        int nValidPoints = countNonZero(inlierMask);
+        cout << nValidPoints << " valid points, " <<
+             (float) nValidPoints * 100 / points1.size()
+             << "%of " << points1.size() << " points are used in 'findEssentialMat'" << endl << endl;
+        cout << "2D-2D frame1 R: " << R1.size << endl << R1 << endl;
+        cout << "2D-2D frame1 t: " << t1.size << endl << t1 << endl;
+        cout << "2D-2D frame1 SE3: " << endl << frame1->T_c_w << endl;
 #endif
         //解frame2的R、t并计算se3,三角化
-        Mat R2, t2, points4d;
-/*        recoverPose(essentialMatrix, points1, points2, R2, t2,
-                    camera->getFocalLength(), camera->getPrincipalPoint());*/
+        Mat R2, t2, points4D;
         recoverPose(essentialMatrix, points1, points2,
-                    camera->getIntrinsics(), R2, t2, 0, noArray(),
-                    points4d);
+                    camera->getIntrinsics(), R2, t2, 100, inlierMask,
+                    points4D);
         frame2->T_c_w = SE3(
                 SO3(R2.at<double>(0, 0), R2.at<double>(1, 0), R2.at<double>(2, 0)),
                 Vector3d(t2.at<double>(0, 0), t2.at<double>(1, 0), t2.at<double>(2, 0))
         );
 #ifdef DEBUG
-        cout << "2D-2D initialization frame2 R: " << R2.size << endl << R2 << endl;
-        cout << "2D-2D initialization frame2 t: " << t2.size << endl << t2 << endl;
-        cout << "2D-2D initialization frame2 SE3: " << endl << frame2->T_c_w << endl;
+        nValidPoints = countNonZero(inlierMask);
+        cout << nValidPoints << " valid points, " <<
+             (float) nValidPoints * 100 / points1.size()
+             << "%of " << points1.size() << " points are used in 'recoverPose'" << endl << endl;
+        cout << "2D-2D frame2 R: " << R2.size << endl << R2 << endl;
+        cout << "2D-2D frame2 t: " << t2.size << endl << t2 << endl;
+        cout << "2D-2D frame2 SE3: " << endl << frame2->T_c_w << endl;
+        cout << "got 4D points sized " << points4D.size << endl;
 #endif
 
+
+
+        //归一化齐次坐标点,转换Mat
+        vector<Point3f> points3D;
+        for (int i = 0; i < points4D.cols; ++i) {
+            if (!inlierMask.at<uint8_t>(i, 0))
+                continue;
+            // 转换齐次坐标
+            Mat x = points4D.col(i);
+            x /= x.at<double>(3, 0); // 归一化
+            Point3d p(
+                    x.at<double>(0, 0),
+                    x.at<double>(1, 0),
+                    x.at<double>(2, 0)
+            );
+            points3D.push_back(p);
+
+            //向地图增加点
+            //获取描述子
+            Mat descriptor = descriptors2.row(goodMatches[i].trainIdx);
+            //获取颜色
+            Vec3b rgb;
+            if (frame1->image.type() == CV_8UC3) {
+                rgb = frame1->image.at<Vec3b>(keypoints2[goodMatches[i].trainIdx].pt);
+                swap(rgb[0],rgb[2]);
+            } else if (frame1->image.type() == CV_8UC1) {
+                cvtColor(frame1->image.at<uint8_t>(keypoints2[goodMatches[i].trainIdx].pt),
+                         rgb,
+                         COLOR_GRAY2RGB);
+            }
+            MapPoint::Ptr mapPoint(new MapPoint(Vector3d(x.at<double>(0, 0),
+                                                         x.at<double>(1, 0),
+                                                         x.at<double>(2, 0)),
+                                                descriptor, rgb, frame1
+            ));
+            mapPoint->addFrame(frame2);
+            map->insertMapPoint(mapPoint);
+        }
+
+
+
         //可视化初始化点云
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
+#ifdef DEBUG
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+/*        for (auto point:points3D) {
+            pcl::PointXYZ pointXYZ(point.x, point.y, point.z);
+            cloud->push_back(pointXYZ);
+        }*/
+        for (MapPoint::Ptr point:map->mapPoints) {
+            pcl::PointXYZRGB pointXYZ(point->rgb[0],point->rgb[1],point->rgb[2]);
+            pointXYZ.x=point->pos(0);
+            pointXYZ.y=point->pos(1);
+            pointXYZ.z=point->pos(2);
+            cloud->push_back(pointXYZ);
+        }
+        pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
+        viewer.showCloud(cloud);
+        while (!viewer.wasStopped()) {
+        }
 
-        //三角化
-        //vector<Point3d> points3d;
-/*        Mat proj1(3, 4, CV_32FC1), proj2(3, 4, CV_32FC1);
-        proj1(Range(0, 3), Range(0, 3)) = R1;
-        proj1.col(3) = t1;
-        proj2(Range(0, 3), Range(0, 3)) = R2;
-        proj2.col(3) = t2;
-        triangulatePoints(proj1,proj2,points1,points2,)*/
-
-        //triangulation(keypoints1, keypoints2, goodMatches, R, t, *camera, points3d);
+#endif
 
 
         frame1 = frame2;
 
+
+
+        //3D-2D
 
         for (; imageDirIt != imagesDir.end();
                ++imageDirIt) {
@@ -121,42 +190,5 @@ namespace sky {
         }
     }
 
-    void SFM::triangulation(
-            const vector<KeyPoint> &keypoint_1,
-            const vector<KeyPoint> &keypoint_2,
-            const std::vector<DMatch> &matches,
-            const Mat &R, const Mat &t,
-            const Camera &camera,
-            vector<Point3d> &points) {
-        Mat T1 = (Mat_<float>(3, 4) << 1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0);
-        Mat T2 = (Mat_<float>(3, 4) << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2), t.at<double>(0, 0),
-                R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2), t.at<double>(1, 0),
-                R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2), t.at<double>(2, 0)
-        );
-
-        vector<Point2f> pts_1, pts_2;
-        for (DMatch m:matches) {
-            // 将像素坐标转换至相机坐标
-            pts_1.push_back(camera.pixel2normal(keypoint_1[m.queryIdx].pt));
-            pts_2.push_back(camera.pixel2normal(keypoint_2[m.trainIdx].pt));
-        }
-
-        Mat pts_4d;
-        cv::triangulatePoints(T1, T2, pts_1, pts_2, pts_4d);
-
-        // 转换成非齐次坐标
-        for (int i = 0; i < pts_4d.cols; i++) {
-            Mat x = pts_4d.col(i);
-            x /= x.at<float>(3, 0); // 归一化
-            Point3d p(
-                    x.at<float>(0, 0),
-                    x.at<float>(1, 0),
-                    x.at<float>(2, 0)
-            );
-            points.push_back(p);
-        }
-    }
 
 }
