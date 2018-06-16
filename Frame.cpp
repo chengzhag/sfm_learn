@@ -19,7 +19,9 @@ namespace sky {
         return T_c_w.inverse().translation();
     }
 
+
     bool Frame::isInFrame(const Vector3d &pt_world) {
+        // cout<<"pt_world = "<<endl<<pt_world<<endl;
         Vector3d p_cam = camera->world2camera(pt_world, T_c_w);
         // cout<<"P_cam = "<<p_cam.transpose()<<endl;
         if (p_cam(2, 0) < 0) return false;

@@ -24,10 +24,9 @@ namespace sky {
 
         ~Frame();
 
-        static Frame::Ptr createFrame();
 
-        // Get Camera Center
         Vector3d getCamCenterEigen() const;
+
 
         // check if a point is in this frame
         bool isInFrame(const Vector3d &pt_world);

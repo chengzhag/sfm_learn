@@ -5,6 +5,7 @@
 #include "SFM.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/cvv.hpp>
+#include <opencv2/core/eigen.hpp>
 
 using namespace cv;
 
@@ -22,16 +23,39 @@ namespace sky {
         for (; imageDirIt != imagesDir.end();
                ++imageDirIt) {
 #ifdef DEBUG
-            cout << "Adding image: " + *imageDirIt << endl;
+            cout << endl << "Adding image: " + *imageDirIt << endl;
 #endif
             Mat image = imread(*imageDirIt);
             cvv::showImage(image, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
             Frame::Ptr frame(new Frame(camera, image));
+
+            //检测特征点并匹配
+#ifdef DEBUG
+            cout << endl << "finding keypoints and extracting descriptors..." << endl;
+#endif
+            //检测当前帧的特征点
+            vector<cv::KeyPoint> keypoints;
+            vector<DMatch> matches;
+            Mat descriptors2;
+
+            feature2D->detect(image, keypoints, cv::noArray());
+            feature2D->compute(image, keypoints, descriptors2);
+
+            //提取地图的特征点
+            Mat descriptors1;
+            vector<MapPoint::Ptr> localMap;
+            for (MapPoint::Ptr &point:map->mapPoints) {
+                if (map->frames.back()->isInFrame(point->pos)) {
+                    localMap.push_back(point);
+                    descriptors1.push_back(point->descriptor);
+                }
+            }
+            matcher->match(descriptors1, descriptors2, matches, cv::noArray());
+#ifdef DEBUG
+            cout << "found " << matches.size() << " keypoints" << endl;
+#endif
+
             map->addFrame(frame);
-
-            // 求解PnP问题
-
-
         }
     }
 
@@ -54,6 +78,9 @@ namespace sky {
 #endif
 
         //检测特征点并匹配
+#ifdef DEBUG
+        cout << endl << "finding keypoints and extracting descriptors..." << endl;
+#endif
         feature2D->detect(image1, keypoints1, cv::noArray());
         feature2D->detect(image2, keypoints2, cv::noArray());
         feature2D->compute(image1, keypoints1, descriptors1);
@@ -79,9 +106,10 @@ namespace sky {
 #ifdef DEBUG
         cout << "found " << goodMatches.size() << " good matches" << endl;
 #endif
+#ifdef CVVISUAL_DEBUGMODE
         cvv::debugDMatch(image1, keypoints1, image2, keypoints2, goodMatches, CVVISUAL_LOCATION,
                          "2D-2D points matching");
-
+#endif
 
 
 
@@ -97,38 +125,43 @@ namespace sky {
                                            camera->getFocalLength(),
                                            camera->getPrincipalPoint(),
                                            RANSAC, 0.999, 1.0, inlierMask);
-        //设置frame1的初始化se3
-        Mat R1 = Mat::eye(3, 3, CV_64FC1), t1 = Mat::zeros(3, 1, CV_64FC1);
-        frame1->T_c_w = SE3(
-                SO3(R1.at<double>(0, 0), R1.at<double>(1, 0), R1.at<double>(2, 0)),
-                Vector3d(t1.at<double>(0, 0), t1.at<double>(1, 0), t1.at<double>(2, 0))
+        //可视化用于三角化的点
+#ifdef CVVISUAL_DEBUGMODE
+        vector<DMatch> inlierMatches;
+        vector<cv::KeyPoint> inlierKeypoints1, inlierKeypoints2;
+        for (int i = 0; i < goodMatches.size(); ++i) {
+            if (!inlierMask.at<uint8_t>(i, 0))
+                continue;
+            inlierMatches.push_back(goodMatches[i]);
+            inlierMatches.back().trainIdx = inlierKeypoints1.size();
+            inlierMatches.back().queryIdx = inlierKeypoints2.size();
+            inlierKeypoints1.push_back(keypoints1[goodMatches[i].queryIdx]);
+            inlierKeypoints2.push_back(keypoints2[goodMatches[i].trainIdx]);
+        }
+        cvv::debugDMatch(image1, inlierKeypoints1, image2, inlierKeypoints2, inlierMatches, CVVISUAL_LOCATION,
+                         "match used in triangulation");
+#endif
+
+        //解frame2的R、t并计算se3,三角化
+        Mat R, t, points4D;
+        recoverPose(essentialMatrix, points1, points2,
+                    camera->getIntrinsics(), R, t, 100, inlierMask,
+                    points4D);
+        Eigen::Matrix3d eigenR2;
+        cv2eigen(R, eigenR2);
+        frame2->T_c_w = SE3(
+                eigenR2,
+                Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
 #ifdef DEBUG
         int nValidPoints = countNonZero(inlierMask);
         cout << nValidPoints << " valid points, " <<
              (float) nValidPoints * 100 / points1.size()
-             << "%of " << points1.size() << " points are used in 'findEssentialMat'" << endl << endl;
-        cout << "2D-2D frame1 R: " << R1.size << endl << R1 << endl;
-        cout << "2D-2D frame1 t: " << t1.size << endl << t1 << endl;
-        cout << "2D-2D frame1 SE3: " << endl << frame1->T_c_w << endl;
-#endif
-        //解frame2的R、t并计算se3,三角化
-        Mat R2, t2, points4D;
-        recoverPose(essentialMatrix, points1, points2,
-                    camera->getIntrinsics(), R2, t2, 100, inlierMask,
-                    points4D);
-        frame2->T_c_w = SE3(
-                SO3(R2.at<double>(0, 0), R2.at<double>(1, 0), R2.at<double>(2, 0)),
-                Vector3d(t2.at<double>(0, 0), t2.at<double>(1, 0), t2.at<double>(2, 0))
-        );
-#ifdef DEBUG
-        nValidPoints = countNonZero(inlierMask);
-        cout << nValidPoints << " valid points, " <<
-             (float) nValidPoints * 100 / points1.size()
              << "%of " << points1.size() << " points are used in 'recoverPose'" << endl << endl;
-        cout << "2D-2D frame2 R: " << R2.size << endl << R2 << endl;
-        cout << "2D-2D frame2 t: " << t2.size << endl << t2 << endl;
+        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
+        cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
         cout << "2D-2D frame2 SE3: " << endl << frame2->T_c_w << endl;
+        //cout << "T_w_c: " << endl << frame2->getTwcCV() << endl;
         cout << "got 4D points sized " << points4D.size << endl;
 #endif
 
@@ -164,9 +197,16 @@ namespace sky {
             map->addMapPoint(mapPoint);
         }
 
+        //可视化重投影点
+#ifdef CVVISUAL_DEBUGMODE
 
+#endif
 
         //可视化初始化点云
+#ifdef CLOUDVIEWER_DEBUG
         map->visInCloudViewer();
+#endif
+
+
     }
 }
