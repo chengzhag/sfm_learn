@@ -7,6 +7,8 @@
 
 #include "common_include.h"
 #include "Camera.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/eigen.hpp>
 
 namespace sky {
 
@@ -26,6 +28,19 @@ namespace sky {
 
 
         Vector3d getCamCenterEigen() const;
+
+        cv::Mat getTcwCV() {
+            cv::Mat TcwCV;
+            cv::eigen2cv(T_c_w.matrix(), TcwCV);
+            return TcwCV;
+        }
+
+        cv::Mat getProjMatCV() {
+            auto TcwCV = getTcwCV();
+            Mat projMatx;
+            TcwCV(cv::Range(0, 3), cv::Range(0, 4)).convertTo(projMatx, CV_32FC1);
+            return projMatx;
+        }
 
 
         // check if a point is in this frame

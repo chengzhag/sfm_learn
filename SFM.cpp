@@ -14,20 +14,22 @@ namespace sky {
     void SFM::addImages(const vector<string> &imagesDir, Camera::Ptr camera) {
 
         auto imageDirIt = imagesDir.begin();
+        Mat image1 = imread(*imageDirIt++);
+        Mat image2 = imread(*imageDirIt++);
 
-
-        initialize(*imageDirIt++, *imageDirIt++, camera);
+        initialize(image1, image2, camera);
 
         //3D-2D
 
         for (; imageDirIt != imagesDir.end();
                ++imageDirIt) {
+            image1 = image2;
 #ifdef DEBUG
             cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
 #endif
-            Mat image = imread(*imageDirIt);
-            cvv::showImage(image, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
-            Frame::Ptr frame(new Frame(camera, image));
+            image2 = imread(*imageDirIt);
+            cvv::showImage(image2, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
+            Frame::Ptr frame(new Frame(camera, image2));
 
             //检测特征点并匹配
 #ifdef DEBUG
@@ -38,15 +40,15 @@ namespace sky {
             vector<DMatch> matches;
             Mat descriptors2;
 
-            feature2D->detect(image, keypoints, cv::noArray());
-            feature2D->compute(image, keypoints, descriptors2);
+            feature2D->detect(image2, keypoints, cv::noArray());
+            feature2D->compute(image2, keypoints, descriptors2);
 
             //提取地图的特征点
             Mat descriptors1;
-            vector<MapPoint::Ptr> localMap;
+            vector<Point3f> points3D;
             for (MapPoint::Ptr &point:map->mapPoints) {
                 if (map->frames.back()->isInFrame(point->pos)) {
-                    localMap.push_back(point);
+                    points3D.push_back(point->getPosCV());
                     descriptors1.push_back(point->descriptor);
                 }
             }
@@ -55,14 +57,45 @@ namespace sky {
             cout << "found " << matches.size() << " keypoints" << endl;
 #endif
 
+            //TODO: 筛选匹配点
+
+            vector<DMatch> &goodMatches = matches;
+#ifdef DEBUG
+            cout << "found " << goodMatches.size() << " good matches" << endl << endl;
+#endif
+
+            vector<Point2f> points2D;
+            for (auto match:goodMatches) {
+                points2D.push_back(keypoints[match.trainIdx].pt);
+            }
+            Mat r, t, indexInliers;
+            solvePnPRansac(points3D, points2D, camera->getIntrinsics(),
+                           cv::noArray(), r, t, false, 100, 8.0, 0.99,
+                           indexInliers);
+            Mat R;
+            cv::Rodrigues(r, R);
+#ifdef DEBUG
+            cout << "solvePnPRansac: " << indexInliers.rows << " valid points, " <<
+                 (float) indexInliers.rows * 100 / points2D.size()
+                 << "% of " << points2D.size() << " points are used" << endl << endl;
+#endif
+
+            //TODO: 局部BA，参考slambook: project/0.4
+
+            frame->T_c_w = SE3(
+                    SO3(r.at<double>(0, 0), r.at<double>(1, 0), r.at<double>(2, 0)),
+                    Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
+            );
+
+            //提取最后两帧特征点
+
+            //triangulatePoints(map->frames.back()->getProjMatCV,frame->getProjMatCV())
 
             map->addFrame(frame);
         }
     }
 
-    void SFM::initialize(const string &dirImage1, const string &dirImage2, Camera::Ptr camera) {
-        Mat image1 = imread(dirImage1);
-        Mat image2 = imread(dirImage2);
+    void SFM::initialize(Mat &image1, Mat &image2, Camera::Ptr camera) {
         Frame::Ptr frame1(new Frame(camera, image1));
         Frame::Ptr frame2(new Frame(camera, image2));
         map->addFrame(frame1);
@@ -111,16 +144,16 @@ namespace sky {
         cvv::debugDMatch(image1, keypoints1, image2, keypoints2, goodMatches, CVVISUAL_LOCATION,
                          "2D-2D points matching");
 #endif
-
-
-
-        //求解对极约束
         vector<Point2f> points1;
         vector<Point2f> points2;
         for (auto match:goodMatches) {
             points1.push_back(keypoints1[match.queryIdx].pt);
             points2.push_back(keypoints2[match.trainIdx].pt);
         }
+
+
+
+        //求解对极约束
         Mat essentialMatrix, inlierMask;
         essentialMatrix = findEssentialMat(points1, points2,
                                            camera->getFocalLength(),
@@ -167,7 +200,9 @@ namespace sky {
              << "% of " << points1.size() << " points are used" << endl << endl;
 /*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
         cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
-        cout << "2D-2D frame2 SE3: " << endl << frame2->T_c_w << endl;*/
+        cout << "2D-2D frame2 SE3: " << endl << frame2->T_c_w << endl;
+        cout << "2D-2D frame2 Tcw: " << endl << frame2->getTcwCV() << endl << endl;
+        cout << "2D-2D frame2 ProjMat: " << endl << frame2->getProjMatCV() << endl << endl;*/
 
         cout << "got" << points4D.cols << " 3D points" << endl;
 #endif

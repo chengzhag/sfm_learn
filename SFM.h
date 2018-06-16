@@ -32,7 +32,7 @@ namespace sky {
 
         void addImages(const vector<string> &imagesDir, Camera::Ptr camera);
 
-        void initialize(const string &dirImage1, const string &dirImage2, Camera::Ptr camera);
+        void initialize(Mat &image1, Mat &image2, Camera::Ptr camera);
     };
 
 }
