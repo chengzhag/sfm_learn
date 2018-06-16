@@ -32,13 +32,7 @@ namespace sky {
 
         void addImages(const vector<string> &imagesDir, Camera::Ptr camera);
 
-/*        void triangulation(
-                const vector<KeyPoint> &keypoint_1,
-                const vector<KeyPoint> &keypoint_2,
-                const std::vector<DMatch> &matches,
-                const Mat &R, const Mat &t,
-                const Camera &camera,
-                vector<Point3d> &points);*/
+        void initialize(Mat &image1, Mat &image2, Camera::Ptr camera);
     };
 
 }

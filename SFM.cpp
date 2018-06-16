@@ -15,6 +15,33 @@ namespace sky {
         auto imageDirIt = imagesDir.begin();
         Mat image1 = imread(*imageDirIt++);
         Mat image2 = imread(*imageDirIt++);
+
+        initialize(image1, image2, camera);
+
+        image1 = image2;
+        Frame::Ptr frame1 = map->frames.back();
+
+        //3D-2D
+
+        for (; imageDirIt != imagesDir.end();
+               ++imageDirIt) {
+#ifdef DEBUG
+            cout << "Adding image: " + *imageDirIt << endl;
+#endif
+            image2 = imread(*imageDirIt);
+            cvv::debugFilter(image1, image2, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
+            Frame::Ptr frame2(new Frame(camera, image2));
+            map->addFrame(frame2);
+
+            // 求解PnP问题
+
+
+            frame1 = frame2;
+            image1 = image2;
+        }
+    }
+
+    void SFM::initialize(Mat &image1, Mat &image2, Camera::Ptr camera) {
         Frame::Ptr frame1(new Frame(camera, image1));
         Frame::Ptr frame2(new Frame(camera, image2));
         map->addFrame(frame1);
@@ -40,7 +67,7 @@ namespace sky {
         cout << "found " << matches.size() << " keypoints" << endl;
 #endif
         //筛选匹配点
-        auto minMaxDis = std::minmax_element(
+/*        auto minMaxDis = std::minmax_element(
                 matches.begin(), matches.end(),
                 [](const cv::DMatch &m1, const cv::DMatch &m2) {
                     return m1.distance < m2.distance;
@@ -51,7 +78,8 @@ namespace sky {
         for (auto match:matches) {
             if (match.distance <= 5 * minDis)
                 goodMatches.push_back(match);
-        }
+        }*/
+        vector<DMatch> &goodMatches = matches;
 #ifdef DEBUG
         cout << "found " << goodMatches.size() << " good matches" << endl;
 #endif
@@ -144,28 +172,5 @@ namespace sky {
 
         //可视化初始化点云
         map->visInCloudViewer();
-
-
-        frame1 = frame2;
-        image1 = image2;
-
-
-        //3D-2D
-
-        for (; imageDirIt != imagesDir.end();
-               ++imageDirIt) {
-            image2 = imread(*imageDirIt);
-            Frame::Ptr frame2(new Frame(camera, image2));
-
-#ifdef DEBUG
-            cout << "Adding image: " + *imageDirIt << endl;
-#endif
-            cvv::debugFilter(image1, image2, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
-
-            frame1 = frame2;
-            image1 = image2;
-        }
     }
-
-
 }
