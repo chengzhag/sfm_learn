@@ -23,7 +23,7 @@ namespace sky {
         for (; imageDirIt != imagesDir.end();
                ++imageDirIt) {
 #ifdef DEBUG
-            cout << endl << "Adding image: " + *imageDirIt << endl;
+            cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
 #endif
             Mat image = imread(*imageDirIt);
             cvv::showImage(image, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
@@ -55,6 +55,7 @@ namespace sky {
             cout << "found " << matches.size() << " keypoints" << endl;
 #endif
 
+
             map->addFrame(frame);
         }
     }
@@ -74,7 +75,7 @@ namespace sky {
 
         //2D-2D
 #ifdef DEBUG
-        cout << endl << "2D-2D initializing..." << endl << endl;
+        cout << endl << "==============2D-2D initializing==============" << endl;
 #endif
 
         //检测特征点并匹配
@@ -104,7 +105,7 @@ namespace sky {
         }*/
         vector<DMatch> &goodMatches = matches;
 #ifdef DEBUG
-        cout << "found " << goodMatches.size() << " good matches" << endl;
+        cout << "found " << goodMatches.size() << " good matches" << endl << endl;
 #endif
 #ifdef CVVISUAL_DEBUGMODE
         cvv::debugDMatch(image1, keypoints1, image2, keypoints2, goodMatches, CVVISUAL_LOCATION,
@@ -125,6 +126,12 @@ namespace sky {
                                            camera->getFocalLength(),
                                            camera->getPrincipalPoint(),
                                            RANSAC, 0.999, 1.0, inlierMask);
+#ifdef DEBUG
+        int nValidPoints = countNonZero(inlierMask);
+        cout << "findEssentialMat: " << nValidPoints << " valid points, " <<
+             (float) nValidPoints * 100 / points1.size()
+             << "% of " << points1.size() << " points are used" << endl << endl;
+#endif
         //可视化用于三角化的点
 #ifdef CVVISUAL_DEBUGMODE
         vector<DMatch> inlierMatches;
@@ -154,15 +161,15 @@ namespace sky {
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
 #ifdef DEBUG
-        int nValidPoints = countNonZero(inlierMask);
-        cout << nValidPoints << " valid points, " <<
+        nValidPoints = countNonZero(inlierMask);
+        cout << "recoverPose: " << nValidPoints << " valid points, " <<
              (float) nValidPoints * 100 / points1.size()
-             << "%of " << points1.size() << " points are used in 'recoverPose'" << endl << endl;
-        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
+             << "% of " << points1.size() << " points are used" << endl << endl;
+/*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
         cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
-        cout << "2D-2D frame2 SE3: " << endl << frame2->T_c_w << endl;
-        //cout << "T_w_c: " << endl << frame2->getTwcCV() << endl;
-        cout << "got 4D points sized " << points4D.size << endl;
+        cout << "2D-2D frame2 SE3: " << endl << frame2->T_c_w << endl;*/
+
+        cout << "got" << points4D.cols << " 3D points" << endl;
 #endif
 
 
