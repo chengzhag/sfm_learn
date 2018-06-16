@@ -13,13 +13,9 @@ namespace sky {
     void SFM::addImages(const vector<string> &imagesDir, Camera::Ptr camera) {
 
         auto imageDirIt = imagesDir.begin();
-        Mat image1 = imread(*imageDirIt++);
-        Mat image2 = imread(*imageDirIt++);
 
-        initialize(image1, image2, camera);
 
-        image1 = image2;
-        Frame::Ptr frame1 = map->frames.back();
+        initialize(*imageDirIt++, *imageDirIt++, camera);
 
         //3D-2D
 
@@ -28,20 +24,20 @@ namespace sky {
 #ifdef DEBUG
             cout << "Adding image: " + *imageDirIt << endl;
 #endif
-            image2 = imread(*imageDirIt);
-            cvv::debugFilter(image1, image2, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
-            Frame::Ptr frame2(new Frame(camera, image2));
-            map->addFrame(frame2);
+            Mat image = imread(*imageDirIt);
+            cvv::showImage(image, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
+            Frame::Ptr frame(new Frame(camera, image));
+            map->addFrame(frame);
 
             // 求解PnP问题
 
 
-            frame1 = frame2;
-            image1 = image2;
         }
     }
 
-    void SFM::initialize(Mat &image1, Mat &image2, Camera::Ptr camera) {
+    void SFM::initialize(const string &dirImage1, const string &dirImage2, Camera::Ptr camera) {
+        Mat image1 = imread(dirImage1);
+        Mat image2 = imread(dirImage2);
         Frame::Ptr frame1(new Frame(camera, image1));
         Frame::Ptr frame2(new Frame(camera, image2));
         map->addFrame(frame1);

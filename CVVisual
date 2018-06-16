@@ -8,4 +8,4 @@ default_match_view=TranslationMatchView
 
 [overview]
 imgsize=100
-imgzoom=45
+imgzoom=46
