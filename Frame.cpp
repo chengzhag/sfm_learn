@@ -15,12 +15,7 @@ namespace sky {
     }
 
 
-    void Frame::setPose(const SE3 &T_c_w) {
-        this->T_c_w = T_c_w;
-    }
-
-
-    Vector3d Frame::getCamCenter() const {
+    Vector3d Frame::getCamCenterEigen() const {
         return T_c_w.inverse().translation();
     }
 
@@ -31,8 +26,8 @@ namespace sky {
         Vector2d pixel = camera->world2pixel(pt_world, T_c_w);
         // cout<<"P_pixel = "<<pixel.transpose()<<endl<<endl;
         return pixel(0, 0) > 0 && pixel(1, 0) > 0
-               && pixel(0, 0) < image.cols
-               && pixel(1, 0) < image.rows;
+               && pixel(0, 0) < cols
+               && pixel(1, 0) < rows;
     }
 
 }

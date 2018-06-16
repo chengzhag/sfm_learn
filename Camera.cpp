@@ -16,15 +16,15 @@ namespace sky {
 
     Vector2d Camera::camera2pixel(const Vector3d &p_c) {
         return Vector2d(
-                fx_ * p_c(0, 0) / p_c(2, 0) + cx_,
-                fy_ * p_c(1, 0) / p_c(2, 0) + cy_
+                fx * p_c(0, 0) / p_c(2, 0) + cx,
+                fy * p_c(1, 0) / p_c(2, 0) + cy
         );
     }
 
     Vector3d Camera::pixel2camera(const Vector2d &p_p, double depth) {
         return Vector3d(
-                (p_p(0, 0) - cx_) * depth / fx_,
-                (p_p(1, 0) - cy_) * depth / fy_,
+                (p_p(0, 0) - cx) * depth / fx,
+                (p_p(1, 0) - cy) * depth / fy,
                 depth
         );
     }
@@ -40,8 +40,8 @@ namespace sky {
     Point2f Camera::pixel2normal(const Point2d &p) const{
         return Point2f
                 (
-                        (p.x - cx_) / fx_,
-                        (p.y - cy_) / fy_
+                        (p.x - cx) / fx,
+                        (p.y - cy) / fy
                 );
     }
 

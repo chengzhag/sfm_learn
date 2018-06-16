@@ -15,10 +15,10 @@ namespace sky {
     class Camera {
     public:
         typedef shared_ptr<Camera> Ptr;
-        float fx_, fy_, cx_, cy_;
+        float fx, fy, cx, cy;
 
         Camera(float fx, float fy, float cx, float cy) :
-                fx_(fx), fy_(fy), cx_(cx), cy_(cy) {}
+                fx(fx), fy(fy), cx(cx), cy(cy) {}
 
         //坐标转换
 
@@ -38,15 +38,15 @@ namespace sky {
 
         //获取参数
         float getFocalLength() {
-            return (fx_ + fy_) / 2;
+            return (fx + fy) / 2;
         }
 
         cv::Point2d getPrincipalPoint() {
-            return cv::Point2d(cx_, cy_);
+            return cv::Point2d(cx, cy);
         }
 
         cv::Matx<float, 3, 3> getIntrinsics() {
-            return cv::Matx<float, 3, 3>(fx_, 0, cx_, 0, fy_, cy_, 0, 0, 1);
+            return cv::Matx<float, 3, 3>(fx, 0, cx, 0, fy, cy, 0, 0, 1);
         }
     };
 

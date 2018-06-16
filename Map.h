@@ -18,9 +18,9 @@ namespace sky {
 
         Map() {}
 
-        void insertFrame(Frame::Ptr frame);
+        void addFrame(Frame::Ptr frame);
 
-        void insertMapPoint(MapPoint::Ptr mapPoint);
+        void addMapPoint(MapPoint::Ptr mapPoint);
 
         void visInCloudViewer();
     };

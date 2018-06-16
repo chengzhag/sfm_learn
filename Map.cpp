@@ -8,12 +8,12 @@
 
 namespace sky {
 
-    void Map::insertFrame(Frame::Ptr frame) {
+    void Map::addFrame(Frame::Ptr frame) {
         if (frame)
             frames.push_back(frame);
     }
 
-    void Map::insertMapPoint(MapPoint::Ptr mapPoint) {
+    void Map::addMapPoint(MapPoint::Ptr mapPoint) {
         if (mapPoint)
             mapPoints.push_back(mapPoint);
     }

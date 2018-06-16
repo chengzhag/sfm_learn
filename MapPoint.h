@@ -27,14 +27,14 @@ namespace sky {
                 pos(pos),
                 descriptor(descriptor),
                 rgb(rgb) {
-            addFrame(observedFrame);
+            addObervedFrame(observedFrame);
         }
 
         inline cv::Point3f getPosCV() const {
             return cv::Point3f(pos(0, 0), pos(1, 0), pos(2, 0));
         }
 
-        void addFrame(const Frame::Ptr &observedFrame) {
+        void addObervedFrame(const Frame::Ptr &observedFrame) {
             if (!observedFrame)
                 observedFrames.push_back(observedFrame);
         }

@@ -15,20 +15,19 @@ namespace sky {
         typedef shared_ptr<Frame> Ptr;
         SE3 T_c_w;      // transform from world to camera
         Camera::Ptr camera;     // Pinhole RGBD Camera model
-        Mat image;
+        int cols, rows;
 
         Frame();
 
-        Frame(const Camera::Ptr &camera, const Mat &image) : camera(camera), image(image) {}
+        Frame(const Camera::Ptr &camera, const Mat &image) :
+                camera(camera), cols(image.cols), rows(image.rows) {}
 
         ~Frame();
 
         static Frame::Ptr createFrame();
 
         // Get Camera Center
-        Vector3d getCamCenter() const;
-
-        void setPose(const SE3 &T_c_w);
+        Vector3d getCamCenterEigen() const;
 
         // check if a point is in this frame
         bool isInFrame(const Vector3d &pt_world);

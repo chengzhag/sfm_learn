@@ -13,10 +13,12 @@ namespace sky {
     void SFM::addImages(const vector<string> &imagesDir, Camera::Ptr camera) {
 
         auto imageDirIt = imagesDir.begin();
-        Frame::Ptr frame1(new Frame(camera, imread(*imageDirIt++)));
-        Frame::Ptr frame2(new Frame(camera, imread(*imageDirIt++)));
-        map->insertFrame(frame1);
-        map->insertFrame(frame2);
+        Mat image1 = imread(*imageDirIt++);
+        Mat image2 = imread(*imageDirIt++);
+        Frame::Ptr frame1(new Frame(camera, image1));
+        Frame::Ptr frame2(new Frame(camera, image2));
+        map->addFrame(frame1);
+        map->addFrame(frame2);
 
         vector<cv::KeyPoint> keypoints1, keypoints2;
         vector<DMatch> matches;
@@ -29,10 +31,10 @@ namespace sky {
 #endif
 
         //检测特征点并匹配
-        feature2D->detect(frame1->image, keypoints1, cv::noArray());
-        feature2D->detect(frame2->image, keypoints2, cv::noArray());
-        feature2D->compute(frame1->image, keypoints1, descriptors1);
-        feature2D->compute(frame2->image, keypoints2, descriptors2);
+        feature2D->detect(image1, keypoints1, cv::noArray());
+        feature2D->detect(image2, keypoints2, cv::noArray());
+        feature2D->compute(image1, keypoints1, descriptors1);
+        feature2D->compute(image2, keypoints2, descriptors2);
         matcher->match(descriptors1, descriptors2, matches, cv::noArray());
 #ifdef DEBUG
         cout << "found " << matches.size() << " keypoints" << endl;
@@ -53,7 +55,7 @@ namespace sky {
 #ifdef DEBUG
         cout << "found " << goodMatches.size() << " good matches" << endl;
 #endif
-        cvv::debugDMatch(frame1->image, keypoints1, frame2->image, keypoints2, goodMatches, CVVISUAL_LOCATION,
+        cvv::debugDMatch(image1, keypoints1, image2, keypoints2, goodMatches, CVVISUAL_LOCATION,
                          "2D-2D points matching");
 
 
@@ -121,11 +123,11 @@ namespace sky {
             Mat descriptor = descriptors2.row(goodMatches[i].trainIdx);
             //获取颜色
             Vec3b rgb;
-            if (frame1->image.type() == CV_8UC3) {
-                rgb = frame1->image.at<Vec3b>(keypoints2[goodMatches[i].trainIdx].pt);
+            if (image1.type() == CV_8UC3) {
+                rgb = image1.at<Vec3b>(keypoints2[goodMatches[i].trainIdx].pt);
                 swap(rgb[0], rgb[2]);
-            } else if (frame1->image.type() == CV_8UC1) {
-                cvtColor(frame1->image.at<uint8_t>(keypoints2[goodMatches[i].trainIdx].pt),
+            } else if (image1.type() == CV_8UC1) {
+                cvtColor(image1.at<uint8_t>(keypoints2[goodMatches[i].trainIdx].pt),
                          rgb,
                          COLOR_GRAY2RGB);
             }
@@ -134,8 +136,8 @@ namespace sky {
                                                          x.at<double>(2, 0)),
                                                 descriptor, rgb, frame1
             ));
-            mapPoint->addFrame(frame2);
-            map->insertMapPoint(mapPoint);
+            mapPoint->addObervedFrame(frame2);
+            map->addMapPoint(mapPoint);
         }
 
 
@@ -145,21 +147,23 @@ namespace sky {
 
 
         frame1 = frame2;
-
+        image1 = image2;
 
 
         //3D-2D
 
         for (; imageDirIt != imagesDir.end();
                ++imageDirIt) {
-            Frame::Ptr frame2(new Frame(camera, imread(*imageDirIt)));
+            image2 = imread(*imageDirIt);
+            Frame::Ptr frame2(new Frame(camera, image2));
 
 #ifdef DEBUG
             cout << "Adding image: " + *imageDirIt << endl;
 #endif
-            cvv::debugFilter(frame1->image, frame2->image, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
+            cvv::debugFilter(image1, image2, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
 
             frame1 = frame2;
+            image1 = image2;
         }
     }
 
