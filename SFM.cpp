@@ -5,8 +5,6 @@
 #include "SFM.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/cvv.hpp>
-#include <pcl/common/common_headers.h>
-#include <pcl/visualization/cloud_viewer.h>
 
 using namespace cv;
 
@@ -111,19 +109,12 @@ namespace sky {
 
 
         //归一化齐次坐标点,转换Mat
-        vector<Point3f> points3D;
         for (int i = 0; i < points4D.cols; ++i) {
             if (!inlierMask.at<uint8_t>(i, 0))
                 continue;
             // 转换齐次坐标
             Mat x = points4D.col(i);
             x /= x.at<double>(3, 0); // 归一化
-            Point3d p(
-                    x.at<double>(0, 0),
-                    x.at<double>(1, 0),
-                    x.at<double>(2, 0)
-            );
-            points3D.push_back(p);
 
             //向地图增加点
             //获取描述子
@@ -132,7 +123,7 @@ namespace sky {
             Vec3b rgb;
             if (frame1->image.type() == CV_8UC3) {
                 rgb = frame1->image.at<Vec3b>(keypoints2[goodMatches[i].trainIdx].pt);
-                swap(rgb[0],rgb[2]);
+                swap(rgb[0], rgb[2]);
             } else if (frame1->image.type() == CV_8UC1) {
                 cvtColor(frame1->image.at<uint8_t>(keypoints2[goodMatches[i].trainIdx].pt),
                          rgb,
@@ -150,25 +141,7 @@ namespace sky {
 
 
         //可视化初始化点云
-#ifdef DEBUG
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-/*        for (auto point:points3D) {
-            pcl::PointXYZ pointXYZ(point.x, point.y, point.z);
-            cloud->push_back(pointXYZ);
-        }*/
-        for (MapPoint::Ptr point:map->mapPoints) {
-            pcl::PointXYZRGB pointXYZ(point->rgb[0],point->rgb[1],point->rgb[2]);
-            pointXYZ.x=point->pos(0);
-            pointXYZ.y=point->pos(1);
-            pointXYZ.z=point->pos(2);
-            cloud->push_back(pointXYZ);
-        }
-        pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
-        viewer.showCloud(cloud);
-        while (!viewer.wasStopped()) {
-        }
-
-#endif
+        map->visInCloudViewer();
 
 
         frame1 = frame2;
