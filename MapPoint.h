@@ -35,7 +35,7 @@ namespace sky {
         }
 
         void addObervedFrame(const Frame::Ptr &observedFrame) {
-            if (!observedFrame)
+            if (observedFrame)
                 observedFrames.push_back(observedFrame);
         }
     };
