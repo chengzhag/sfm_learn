@@ -60,10 +60,15 @@ namespace sky {
         //求解对极约束并三角化
         void solve2D2DandTriangulate();
 
+        //3D-2D求解
+
+        //添加新帧，提取、匹配、筛选和Map的特征点，PnP求解，提取、匹配、筛选和前一帧的特征点，三角化
+        void step(Mat &image, const Camera::Ptr &camera);
+
         //基本处理
 
         //加载新帧
-        void pushImage(const Mat &image, const Camera::Ptr &camera);
+        void pushImage(Mat &image, const Camera::Ptr &camera);
 
         //检测特征点，提取描述子
         void detectAndCompute();
@@ -73,6 +78,9 @@ namespace sky {
 
         //转换齐次坐标点，保存到Map
         void convAndAddMappoints();
+
+        //筛选匹配点
+        void filtMatches();
     };
 
 }
