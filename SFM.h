@@ -55,7 +55,7 @@ namespace sky {
         //2D-2D初始化
 
         //对两张图片提取、匹配、筛选特征点，求解对极约束，三角化
-        void initialize(Mat &image1, Mat &image2, Camera::Ptr camera);
+        void init(Mat &image1, Mat &image2, Camera::Ptr camera);
 
         //求解对极约束并三角化
         void solve2D2DandTriangulate();

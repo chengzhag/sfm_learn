@@ -42,9 +42,10 @@ namespace sky {
             return Tcw34;
         }
 
-        cv::Mat getProjMatCV() {
+
+/*        cv::Mat getProjMatCV() {
             return camera->getKMatCV()*getTcw34MatCV();
-        }
+        }*/
 
 
         // check if a point is in this frame

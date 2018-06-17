@@ -17,16 +17,15 @@ namespace sky {
         Mat image1 = imread(*imageDirIt++);
         Mat image2 = imread(*imageDirIt++);
 
-        initialize(image1, image2, camera);
+        init(image1, image2, camera);
 
-        //可视化初始化点云
-#ifdef CLOUDVIEWER_DEBUG
+/*#ifdef CLOUDVIEWER_DEBUG
         map->visInCloudViewer();
-#endif
+#endif*/
 
         //3D-2D
 
-        for (; imageDirIt != imagesDir.begin() + 4; ++imageDirIt) {
+        for (; imageDirIt != imagesDir.end()-6; ++imageDirIt) {
             Mat image = imread(*imageDirIt);
 #ifdef DEBUG
             cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
@@ -44,7 +43,7 @@ namespace sky {
 #endif
     }
 
-    void SFM::initialize(Mat &image1, Mat &image2, Camera::Ptr camera) {
+    void SFM::init(Mat &image1, Mat &image2, Camera::Ptr camera) {
         //2D-2D
 #ifdef DEBUG
         cout << endl << "==============2D-2D initializing==============" << endl;
@@ -98,6 +97,7 @@ namespace sky {
         //筛选匹配点
         filtMatches();
 
+        //解PnP得相机位姿
         vector<Point2f> points2DPnP;
         vector<Point3f> points3DPnP;
         for (auto match:matches) {
@@ -110,11 +110,6 @@ namespace sky {
                        indexInliers);
         Mat R;
         cv::Rodrigues(r, R);
-#ifdef DEBUG
-        cout << "solvePnPRansac: " << indexInliers.rows << " valid points, " <<
-             (float) indexInliers.rows * 100 / points2DPnP.size()
-             << "% of " << points2DPnP.size() << " points are used" << endl;
-#endif
 
         //TODO: 局部BA，参考slambook: project/0.4
 
@@ -122,6 +117,20 @@ namespace sky {
                 SO3(r.at<double>(0, 0), r.at<double>(1, 0), r.at<double>(2, 0)),
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
+
+#ifdef DEBUG
+        cout << "solvePnPRansac: " << indexInliers.rows << " valid points, " <<
+             (float) indexInliers.rows * 100 / points2DPnP.size()
+             << "% of " << points2DPnP.size() << " points are used" << endl;
+/*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
+        cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
+        cout << "2D-2D frame2 SE3: " << endl << keyFrame2->frame->T_c_w << endl;
+        cout << "2D-2D frame2 Tcw: " << endl << keyFrame2->frame->getTcwMatCV() << endl << endl;
+        cout << "2D-2D frame2 ProjMat: " << endl << keyFrame2->frame->getTcw34MatCV() << endl << endl;*/
+#endif
+
+
+
 
         //匹配帧间特征点
         matchWithFrameAndFilt();
@@ -133,12 +142,12 @@ namespace sky {
         for (int i = 0; i < keyFrame1->matchPoints.size(); ++i) {
             matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(keyFrame1->matchPoints[i]));
             matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(keyFrame2->matchPoints[i]));
-#ifdef DEBUG
+/*#ifdef DEBUG
             if (i < 5) {
                 cout << keyFrame1->matchPoints[i] << endl;
                 cout << matchPointsNorm1.back() << endl << endl;
             }
-#endif
+#endif*/
         }
         triangulatePoints(keyFrame1->frame->getTcw34MatCV(), keyFrame2->frame->getTcw34MatCV(),
                           matchPointsNorm1, matchPointsNorm2, points4D);
@@ -153,7 +162,7 @@ namespace sky {
     void SFM::convAndAddMappoints() {//归一化齐次坐标点,转换Mat
 #ifdef DEBUG
         int numOldMappoints = map->mapPoints.size();
-        cout << "showing 5 samples of 3D points:" << endl;
+        //cout << "showing 5 samples of 3D points:" << endl;
 #endif
         for (int i = 0; i < points4D.cols; ++i) {
             if (!inlierMask.empty() && !inlierMask.at<uint8_t>(i, 0))
@@ -176,27 +185,27 @@ namespace sky {
             }
 
             MapPoint::Ptr mapPoint;
-            if(x.type()==CV_32FC1){
+            if (x.type() == CV_32FC1) {
                 x /= x.at<float>(3, 0); // 归一化
-                mapPoint=MapPoint::Ptr(new MapPoint(Vector3d(x.at<float>(0, 0),
-                                                             x.at<float>(1, 0),
-                                                             x.at<float>(2, 0)),
-                                                    descriptor, rgb, keyFrame1->frame
+                mapPoint = MapPoint::Ptr(new MapPoint(Vector3d(x.at<float>(0, 0),
+                                                               x.at<float>(1, 0),
+                                                               x.at<float>(2, 0)),
+                                                      descriptor, rgb, keyFrame1->frame
                 ));
-            }else if(x.type()==CV_64FC1){
+            } else if (x.type() == CV_64FC1) {
                 x /= x.at<double>(3, 0);
-                mapPoint=MapPoint::Ptr(new MapPoint(Vector3d(x.at<double>(0, 0),
-                                                              x.at<double>(1, 0),
-                                                              x.at<double>(2, 0)),
-                                                     descriptor, rgb, keyFrame1->frame
+                mapPoint = MapPoint::Ptr(new MapPoint(Vector3d(x.at<double>(0, 0),
+                                                               x.at<double>(1, 0),
+                                                               x.at<double>(2, 0)),
+                                                      descriptor, rgb, keyFrame1->frame
                 ));
             }
 
 
-#ifdef DEBUG
+/*#ifdef DEBUG
             if (i < 5)
                 cout << mapPoint->pos << endl << endl;
-#endif
+#endif*/
 
             mapPoint->addObervedFrame(keyFrame2->frame);
             map->addMapPoint(mapPoint);
