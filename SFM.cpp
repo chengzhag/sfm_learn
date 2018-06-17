@@ -55,8 +55,97 @@ namespace sky {
         detectAndCompute();
         //筛选匹配点
         matchWithFrameAndFilt();
+
+
         //解对极约束并三角化
-        solve2D2DandTriangulate();
+
+        vector<Point2f> matchPoints1,matchPoints2;
+        for (auto match:matches) {
+            matchPoints1.push_back(keyFrame1->keyPoints[match.queryIdx].pt);
+            matchPoints2.push_back(keyFrame2->keyPoints[match.trainIdx].pt);
+        }
+
+        Mat essentialMatrix;
+        essentialMatrix = findEssentialMat(matchPoints1, matchPoints2,
+                                           keyFrame2->frame->camera->getFocalLength(),
+                                           keyFrame2->frame->camera->getPrincipalPoint(),
+                                           RANSAC, 0.999, 1.0, inlierMask);
+#ifdef DEBUG
+        int nPointsFindEssentialMat = countNonZero(inlierMask);
+        cout << "findEssentialMat: " << nPointsFindEssentialMat << " valid points, " <<
+             (float) nPointsFindEssentialMat * 100 / matchPoints1.size()
+             << "% of " << matchPoints1.size() << " points are used" << endl;
+#endif
+        //可视化用于三角化的点
+#ifdef CVVISUAL_DEBUGMODE
+        vector<DMatch> inlierMatches;
+        vector<cv::KeyPoint> inlierKeyPoints1, inlierKeyPoints2;
+        for (int i = 0; i < matches.size(); ++i) {
+            if (!inlierMask.at<uint8_t>(i, 0))
+                continue;
+            inlierMatches.push_back(matches[i]);
+            inlierMatches.back().trainIdx = inlierKeyPoints1.size();
+            inlierMatches.back().queryIdx = inlierKeyPoints2.size();
+            inlierKeyPoints1.push_back(keyFrame1->keyPoints[matches[i].queryIdx]);
+            inlierKeyPoints2.push_back(keyFrame2->keyPoints[matches[i].trainIdx]);
+        }
+        cvv::debugDMatch(keyFrame1->image, inlierKeyPoints1, keyFrame2->image, inlierKeyPoints2, inlierMatches, CVVISUAL_LOCATION,
+                         "match used in triangulation");
+
+#endif
+
+        //解frame2的R、t并计算se3,三角化
+        Mat R, t;
+        recoverPose(essentialMatrix, matchPoints1, matchPoints2,
+                    keyFrame2->frame->camera->getKMatxCV(), R, t, 100, inlierMask,
+                    points4D);
+        Eigen::Matrix3d eigenR2;
+        cv2eigen(R, eigenR2);
+        keyFrame2->frame->T_c_w = SE3(
+                eigenR2,
+                Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
+        );
+
+/*        cout << "essentialMatrix类型是" << essentialMatrix.type() << endl;
+        cout << "recoverPose输出的points4D类型是" << points4D.type() << endl;
+        vector<Point2f> matchPointsNorm1, matchPointsNorm2;
+        matchPointsNorm1.reserve(matchPoints1.size());
+        matchPointsNorm2.reserve(matchPoints2.size());
+        for (int i = 0; i < matchPoints1.size(); ++i) {
+            matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(matchPoints1[i]));
+            matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(matchPoints2[i]));
+#ifdef DEBUG
+            if (i < 5) {
+                cout << matchPoints1[i] << endl;
+                cout << matchPointsNorm1.back() << endl << endl;
+            }
+#endif
+        }
+        triangulatePoints(keyFrame1->frame->getTcw34MatCV(), keyFrame2->frame->getTcw34MatCV(),
+                          matchPointsNorm1, matchPointsNorm2, points4D);
+        cout << keyFrame1->frame->getTcw34MatCV() << endl << endl;
+        cout << keyFrame2->frame->getTcw34MatCV() << endl << endl;
+
+        for (int i = 0; i < 5; ++i) {
+            cout << points4D.col(i) << endl << endl;
+        }
+        cout << "triangulatePoints输出的points4D类型是" << points4D.type() << endl;*/
+
+
+#ifdef DEBUG
+        int nPointsRecoverPose = countNonZero(inlierMask);
+        cout << "recoverPose: " << nPointsRecoverPose << " valid points, " <<
+             (float) nPointsRecoverPose * 100 / matchPoints1.size()
+             << "% of " << matchPoints1.size() << " points are used" << endl;
+/*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
+        cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
+        cout << "2D-2D frame2 SE3: " << endl << keyFrame2->frame->T_c_w << endl;
+        cout << "2D-2D frame2 Tcw: " << endl << keyFrame2->frame->getTcwMatCV() << endl << endl;
+        cout << "2D-2D frame2 ProjMat: " << endl << keyFrame2->frame->getTcw34MatCV() << endl << endl;*/
+#endif
+
+
+
         //保存三角化后的点到地图
         convAndAddMappoints();
 
@@ -71,8 +160,6 @@ namespace sky {
     void SFM::step(Mat &image, const Camera::Ptr &camera) {
 
         pushImage(image, camera);
-
-        //检测特征点并匹配
 
         //检测特征点
         detectAndCompute();
@@ -137,11 +224,11 @@ namespace sky {
 
         //三角化
         vector<Point2f> matchPointsNorm1, matchPointsNorm2;
-        matchPointsNorm1.reserve(keyFrame1->matchPoints.size());
-        matchPointsNorm2.reserve(keyFrame2->matchPoints.size());
-        for (int i = 0; i < keyFrame1->matchPoints.size(); ++i) {
-            matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(keyFrame1->matchPoints[i]));
-            matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(keyFrame2->matchPoints[i]));
+        matchPointsNorm1.reserve(matches.size());
+        matchPointsNorm2.reserve(matches.size());
+        for (auto& match:matches) {
+            matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(keyFrame1->keyPoints[match.queryIdx].pt));
+            matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(keyFrame2->keyPoints[match.trainIdx].pt));
 /*#ifdef DEBUG
             if (i < 5) {
                 cout << keyFrame1->matchPoints[i] << endl;
@@ -176,10 +263,10 @@ namespace sky {
             //获取颜色
             Vec3b rgb;
             if (keyFrame2->image.type() == CV_8UC3) {
-                rgb = keyFrame2->image.at<Vec3b>(keyFrame2->matchPoints[i]);
+                rgb = keyFrame2->image.at<Vec3b>(keyFrame2->keyPoints[matches[i].trainIdx].pt);
                 swap(rgb[0], rgb[2]);
             } else if (keyFrame2->image.type() == CV_8UC1) {
-                cvtColor(keyFrame2->image.at<uint8_t>(keyFrame2->matchPoints[i]),
+                cvtColor(keyFrame2->image.at<uint8_t>(keyFrame2->keyPoints[matches[i].trainIdx].pt),
                          rgb,
                          COLOR_GRAY2RGB);
             }
@@ -216,88 +303,6 @@ namespace sky {
 #endif
     }
 
-    void SFM::solve2D2DandTriangulate() {//求解对极约束
-        Mat essentialMatrix;
-        essentialMatrix = findEssentialMat(keyFrame1->matchPoints, keyFrame2->matchPoints,
-                                           keyFrame2->frame->camera->getFocalLength(),
-                                           keyFrame2->frame->camera->getPrincipalPoint(),
-                                           RANSAC, 0.999, 1.0, inlierMask);
-#ifdef DEBUG
-        int nPointsFindEssentialMat = countNonZero(inlierMask);
-        cout << "findEssentialMat: " << nPointsFindEssentialMat << " valid points, " <<
-             (float) nPointsFindEssentialMat * 100 / keyFrame1->matchPoints.size()
-             << "% of " << keyFrame1->matchPoints.size() << " points are used" << endl;
-#endif
-        //可视化用于三角化的点
-#ifdef CVVISUAL_DEBUGMODE
-        vector<DMatch> inlierMatches;
-        vector<cv::KeyPoint> inlierKeyPoints1, inlierKeyPoints2;
-        for (int i = 0; i < matches.size(); ++i) {
-            if (!inlierMask.at<uint8_t>(i, 0))
-                continue;
-            inlierMatches.push_back(matches[i]);
-            inlierMatches.back().trainIdx = inlierKeyPoints1.size();
-            inlierMatches.back().queryIdx = inlierKeyPoints2.size();
-            inlierKeyPoints1.push_back(keyFrame1->keyPoints[matches[i].queryIdx]);
-            inlierKeyPoints2.push_back(keyFrame2->keyPoints[matches[i].trainIdx]);
-        }
-        cvv::debugDMatch(keyFrame1->image, inlierKeyPoints1, keyFrame2->image, inlierKeyPoints2, inlierMatches, CVVISUAL_LOCATION,
-                         "match used in triangulation");
-
-#endif
-
-        //解frame2的R、t并计算se3,三角化
-        Mat R, t;
-        recoverPose(essentialMatrix, keyFrame1->matchPoints, keyFrame2->matchPoints,
-                    keyFrame2->frame->camera->getKMatxCV(), R, t, 100, inlierMask,
-                    points4D);
-        Eigen::Matrix3d eigenR2;
-        cv2eigen(R, eigenR2);
-        keyFrame2->frame->T_c_w = SE3(
-                eigenR2,
-                Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
-        );
-
-/*        cout << "essentialMatrix类型是" << essentialMatrix.type() << endl;
-        cout << "recoverPose输出的points4D类型是" << points4D.type() << endl;
-        vector<Point2f> matchPointsNorm1, matchPointsNorm2;
-        matchPointsNorm1.reserve(keyFrame1->matchPoints.size());
-        matchPointsNorm2.reserve(keyFrame2->matchPoints.size());
-        for (int i = 0; i < keyFrame1->matchPoints.size(); ++i) {
-            matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(keyFrame1->matchPoints[i]));
-            matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(keyFrame2->matchPoints[i]));
-#ifdef DEBUG
-            if (i < 5) {
-                cout << keyFrame1->matchPoints[i] << endl;
-                cout << matchPointsNorm1.back() << endl << endl;
-            }
-#endif
-        }
-        triangulatePoints(keyFrame1->frame->getTcw34MatCV(), keyFrame2->frame->getTcw34MatCV(),
-                          matchPointsNorm1, matchPointsNorm2, points4D);
-        cout << keyFrame1->frame->getTcw34MatCV() << endl << endl;
-        cout << keyFrame2->frame->getTcw34MatCV() << endl << endl;
-
-        for (int i = 0; i < 5; ++i) {
-            cout << points4D.col(i) << endl << endl;
-        }
-        cout << "triangulatePoints输出的points4D类型是" << points4D.type() << endl;*/
-
-
-#ifdef DEBUG
-        int nPointsRecoverPose = countNonZero(inlierMask);
-        cout << "recoverPose: " << nPointsRecoverPose << " valid points, " <<
-             (float) nPointsRecoverPose * 100 / keyFrame1->matchPoints.size()
-             << "% of " << keyFrame1->matchPoints.size() << " points are used" << endl;
-/*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
-        cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
-        cout << "2D-2D frame2 SE3: " << endl << keyFrame2->frame->T_c_w << endl;
-        cout << "2D-2D frame2 Tcw: " << endl << keyFrame2->frame->getTcwMatCV() << endl << endl;
-        cout << "2D-2D frame2 ProjMat: " << endl << keyFrame2->frame->getTcw34MatCV() << endl << endl;*/
-#endif
-
-
-    }
 
     void SFM::matchWithFrameAndFilt() {
         matcher->match(keyFrame1->descriptors, keyFrame2->descriptors, matches, noArray());
@@ -311,13 +316,6 @@ namespace sky {
         cvv::debugDMatch(keyFrame1->image, keyFrame1->keyPoints, keyFrame2->image, keyFrame2->keyPoints, matches, CVVISUAL_LOCATION,
                          "2D-2D points matching");
 #endif
-
-        keyFrame1->matchPoints.resize(0);
-        keyFrame2->matchPoints.resize(0);
-        for (auto match:matches) {
-            keyFrame1->matchPoints.push_back(keyFrame1->keyPoints[match.queryIdx].pt);
-            keyFrame2->matchPoints.push_back(keyFrame2->keyPoints[match.trainIdx].pt);
-        }
     }
 
     void SFM::filtMatches() {

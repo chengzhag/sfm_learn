@@ -30,7 +30,6 @@ namespace sky {
             Mat image;
             vector<cv::KeyPoint> keyPoints;
             Mat descriptors;
-            vector<Point2f> matchPoints;
 
             KeyFrame(const Frame::Ptr &frame, const Mat &image) :
                     frame(frame), image(image) {}
@@ -52,20 +51,17 @@ namespace sky {
 
         void addImages(const vector<string> &imagesDir, Camera::Ptr camera);
 
-        //2D-2D初始化
+        ///2D-2D初始化
 
         //对两张图片提取、匹配、筛选特征点，求解对极约束，三角化
         void init(Mat &image1, Mat &image2, Camera::Ptr camera);
 
-        //求解对极约束并三角化
-        void solve2D2DandTriangulate();
-
-        //3D-2D求解
+        ///3D-2D求解
 
         //添加新帧，提取、匹配、筛选和Map的特征点，PnP求解，提取、匹配、筛选和前一帧的特征点，三角化
         void step(Mat &image, const Camera::Ptr &camera);
 
-        //基本处理
+        ///基本处理
 
         //加载新帧
         void pushImage(Mat &image, const Camera::Ptr &camera);

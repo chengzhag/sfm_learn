@@ -15,7 +15,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad4cc4b4-99f2-48db-935f-f97f9f0e4516" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SFM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SFM.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SFM.h" beforeDir="false" afterPath="$PROJECT_DIR$/SFM.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/cmake-build-release/" />
@@ -33,26 +35,17 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:DebugWithCloudViewer" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="419">
-              <caret line="45" column="9" selection-start-line="45" selection-start-column="9" selection-end-line="45" selection-end-column="9" />
-              <folding>
-                <element signature="e#0#19#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="SFM.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SFM.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-266">
-              <caret line="218" column="14" selection-start-line="218" selection-start-column="14" selection-end-line="218" selection-end-column="14" />
+            <state relative-caret-position="-757">
+              <caret line="61" column="24" selection-start-line="61" selection-start-column="24" selection-end-line="61" selection-end-column="24" />
               <folding>
                 <element signature="e#46#62#0" expanded="true" />
-                <element signature="e#11334#11509#0" expanded="true" />
+                <element signature="e#446#514#0" />
+                <element signature="e#2420#3189#0" expanded="true" />
+                <element signature="e#11739#12241#0" />
+                <element signature="e#12053#12228#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -61,8 +54,8 @@
       <file leaf-file-name="SFM.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SFM.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="211">
-              <caret line="60" column="21" lean-forward="true" selection-start-line="60" selection-start-column="21" selection-end-line="60" selection-end-column="21" />
+            <state relative-caret-position="309">
+              <caret line="38" column="23" lean-forward="true" selection-start-line="38" selection-start-column="23" selection-end-line="38" selection-end-column="23" />
               <folding>
                 <element signature="e#95#122#0" expanded="true" />
               </folding>
@@ -73,7 +66,7 @@
       <file leaf-file-name="Camera.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Camera.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
+            <state relative-caret-position="222">
               <caret line="39" column="20" selection-start-line="39" selection-start-column="20" selection-end-line="39" selection-end-column="20" />
             </state>
           </provider>
@@ -179,11 +172,11 @@
         <option value="$PROJECT_DIR$/Map.h" />
         <option value="$PROJECT_DIR$/Frame.cpp" />
         <option value="$PROJECT_DIR$/MapPoint.h" />
-        <option value="$PROJECT_DIR$/SFM.h" />
         <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/Camera.h" />
         <option value="$PROJECT_DIR$/Frame.h" />
         <option value="$PROJECT_DIR$/Map.cpp" />
+        <option value="$PROJECT_DIR$/SFM.h" />
         <option value="$PROJECT_DIR$/SFM.cpp" />
       </list>
     </option>
@@ -287,12 +280,12 @@
       <workItem from="1529111447264" duration="6152000" />
       <workItem from="1529119113399" duration="34520000" />
       <workItem from="1529198732396" duration="2240000" />
-      <workItem from="1529202107040" duration="10438000" />
+      <workItem from="1529202107040" duration="12332000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="121499000" />
+    <option name="totallyTimeSpent" value="123393000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1246" height="903" extended-state="4" />
@@ -300,11 +293,11 @@
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15971108" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info active="true" anchor="bottom" id="Messages" order="7" visible="true" weight="0.3997478" />
+      <window_info anchor="bottom" id="Messages" order="7" weight="0.3997478" />
       <window_info anchor="bottom" id="CMake" order="11" weight="0.32912987" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32912987" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32660782" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32660782" />
       <window_info anchor="bottom" id="Version Control" order="10" weight="0.32912987" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32912987" />
@@ -352,7 +345,14 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="103" />
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/SFM.cpp</url>
+          <line>238</line>
+          <option name="timeStamp" value="103" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="104" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
@@ -377,17 +377,17 @@
   <component name="debuggerHistoryManager">
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>keyFrame1-&gt;frame-&gt;getTcw34MatCV()</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
         <expression-string>matchPointsNorm2.size()</expression-string>
         <language-id>ObjectiveC</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
         <expression-string>matchPointsNorm1.size()</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>keyFrame1-&gt;frame-&gt;getTcw34MatCV()</expression-string>
         <language-id>ObjectiveC</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -674,13 +674,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/include/opencv2/core/types.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="1140" column="13" selection-start-line="1140" selection-start-column="13" selection-end-line="1140" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Map.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="319">
@@ -767,17 +760,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/local/include/opencv2/core/types.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="1169" selection-start-line="1169" selection-end-line="1169" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Camera.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
+        <state relative-caret-position="222">
           <caret line="39" column="20" selection-start-line="39" selection-start-column="20" selection-end-line="39" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SFM.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
-          <caret line="60" column="21" lean-forward="true" selection-start-line="60" selection-start-column="21" selection-end-line="60" selection-end-column="21" />
+        <state relative-caret-position="309">
+          <caret line="38" column="23" lean-forward="true" selection-start-line="38" selection-start-column="23" selection-end-line="38" selection-end-column="23" />
           <folding>
             <element signature="e#95#122#0" expanded="true" />
           </folding>
@@ -786,11 +786,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SFM.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-266">
-          <caret line="218" column="14" selection-start-line="218" selection-start-column="14" selection-end-line="218" selection-end-column="14" />
+        <state relative-caret-position="-757">
+          <caret line="61" column="24" selection-start-line="61" selection-start-column="24" selection-end-line="61" selection-end-column="24" />
           <folding>
             <element signature="e#46#62#0" expanded="true" />
-            <element signature="e#11334#11509#0" expanded="true" />
+            <element signature="e#446#514#0" />
+            <element signature="e#2420#3189#0" expanded="true" />
+            <element signature="e#11739#12241#0" />
+            <element signature="e#12053#12228#0" expanded="true" />
           </folding>
         </state>
       </provider>
