@@ -1,5 +1,5 @@
 # sfm_learn
-一个基于opencv的SFM简单实现，学习用途。
+一个基于opencv的SFM简单实现，学习用途。欢迎光临[我的主页](https://sites.google.com/view/pidan1231239/home)查看更多其他项目详情。
 
 # 问题简化
 * 假设图像有序
