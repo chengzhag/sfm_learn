@@ -15,8 +15,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad4cc4b4-99f2-48db-935f-f97f9f0e4516" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/SFM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SFM.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SFM.h" beforeDir="false" afterPath="$PROJECT_DIR$/SFM.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/cmake-build-release/" />
@@ -37,8 +37,8 @@
       <file leaf-file-name="SFM.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SFM.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="258" column="13" lean-forward="true" selection-start-line="258" selection-start-column="13" selection-end-line="258" selection-end-column="13" />
+            <state relative-caret-position="234">
+              <caret line="33" column="89" lean-forward="true" selection-start-line="33" selection-start-column="89" selection-end-line="33" selection-end-column="89" />
               <folding>
                 <element signature="e#46#62#0" expanded="true" />
               </folding>
@@ -49,8 +49,8 @@
       <file leaf-file-name="SFM.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SFM.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="387">
-              <caret line="52" column="18" selection-start-line="52" selection-start-column="18" selection-end-line="52" selection-end-column="18" />
+            <state relative-caret-position="297">
+              <caret line="52" column="19" selection-start-line="52" selection-start-column="19" selection-end-line="52" selection-end-column="19" />
               <folding>
                 <element signature="e#95#122#0" expanded="true" />
               </folding>
@@ -185,8 +185,8 @@
   <component name="ProjectFrameBounds" extendedState="4">
     <option name="x" value="65" />
     <option name="y" value="24" />
-    <option name="width" value="1246" />
-    <option name="height" value="903" />
+    <option name="width" value="1209" />
+    <option name="height" value="887" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -276,19 +276,19 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="128690000" />
+    <option name="totallyTimeSpent" value="130654000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="24" width="1246" height="903" extended-state="4" />
+    <frame x="65" y="24" width="1209" height="887" extended-state="4" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15971108" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16459884" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Messages" order="7" sideWeight="0.49919742" weight="0.3997478" />
       <window_info anchor="bottom" id="CMake" order="11" weight="0.32912987" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5008026" side_tool="true" weight="0.3997478" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32912987" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32660782" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.33333334" />
       <window_info anchor="bottom" id="Version Control" order="10" weight="0.32912987" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32912987" />
@@ -767,8 +767,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SFM.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="387">
-          <caret line="52" column="18" selection-start-line="52" selection-start-column="18" selection-end-line="52" selection-end-column="18" />
+        <state relative-caret-position="297">
+          <caret line="52" column="19" selection-start-line="52" selection-start-column="19" selection-end-line="52" selection-end-column="19" />
           <folding>
             <element signature="e#95#122#0" expanded="true" />
           </folding>
@@ -777,8 +777,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SFM.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="258" column="13" lean-forward="true" selection-start-line="258" selection-start-column="13" selection-end-line="258" selection-end-column="13" />
+        <state relative-caret-position="234">
+          <caret line="33" column="89" lean-forward="true" selection-start-line="33" selection-start-column="89" selection-end-line="33" selection-end-column="89" />
           <folding>
             <element signature="e#46#62#0" expanded="true" />
           </folding>
