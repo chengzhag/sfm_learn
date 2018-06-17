@@ -3,6 +3,7 @@
 //
 
 #include "Map.h"
+#ifdef CLOUDVIEWER_DEBUG
 #include <pcl/common/common_headers.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/common/common_headers.h>
@@ -10,6 +11,7 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#endif
 
 namespace sky {
 
@@ -23,6 +25,7 @@ namespace sky {
             mapPoints.push_back(mapPoint);
     }
 
+#ifdef CLOUDVIEWER_DEBUG
     void Map::visInCloudViewer() {
 
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -57,6 +60,7 @@ namespace sky {
         }
 
     }
+#endif
 
 }
 
