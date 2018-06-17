@@ -36,7 +36,6 @@ namespace sky {
         };
 
         KeyFrame::Ptr keyFrame1, keyFrame2;
-        Mat inlierMask;
         vector<DMatch> matches;
         Camera::Ptr currentCamera;
         Mat points4D;
@@ -73,7 +72,7 @@ namespace sky {
         void matchWithFrameAndFilt();
 
         //转换齐次坐标点，保存到Map
-        void convAndAddMappoints();
+        void convAndAddMappoints(const Mat& inlierMask);
 
         //筛选匹配点
         void filtMatches();

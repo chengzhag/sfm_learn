@@ -38,12 +38,12 @@
       <file leaf-file-name="SFM.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SFM.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-757">
-              <caret line="61" column="24" selection-start-line="61" selection-start-column="24" selection-end-line="61" selection-end-column="24" />
+            <state relative-caret-position="177">
+              <caret line="328" column="9" selection-start-line="328" selection-start-column="9" selection-end-line="328" selection-end-column="9" />
               <folding>
                 <element signature="e#46#62#0" expanded="true" />
                 <element signature="e#446#514#0" />
-                <element signature="e#2420#3189#0" expanded="true" />
+                <element signature="e#5378#5796#0" />
                 <element signature="e#11739#12241#0" />
                 <element signature="e#12053#12228#0" expanded="true" />
               </folding>
@@ -55,7 +55,7 @@
         <entry file="file://$PROJECT_DIR$/SFM.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="309">
-              <caret line="38" column="23" lean-forward="true" selection-start-line="38" selection-start-column="23" selection-end-line="38" selection-end-column="23" />
+              <caret line="74" column="56" selection-start-line="74" selection-start-column="56" selection-end-line="74" selection-end-column="56" />
               <folding>
                 <element signature="e#95#122#0" expanded="true" />
               </folding>
@@ -143,6 +143,7 @@
       <find>descriptors2</find>
       <find>goodMatches</find>
       <find>CVVISUAL_DEBUGMODE</find>
+      <find>keyFrame2-&gt;matchPoints</find>
     </findStrings>
     <replaceStrings>
       <replace>Sophus::SE3</replace>
@@ -155,6 +156,7 @@
       <replace>keyframe2-&gt;keyPoints</replace>
       <replace>keyframe2-&gt;descriptors</replace>
       <replace>matches</replace>
+      <replace>matchPoints2</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -280,12 +282,12 @@
       <workItem from="1529111447264" duration="6152000" />
       <workItem from="1529119113399" duration="34520000" />
       <workItem from="1529198732396" duration="2240000" />
-      <workItem from="1529202107040" duration="12332000" />
+      <workItem from="1529202107040" duration="13127000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="123393000" />
+    <option name="totallyTimeSpent" value="124188000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1246" height="903" extended-state="4" />
@@ -345,14 +347,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/SFM.cpp</url>
-          <line>238</line>
-          <option name="timeStamp" value="103" />
-        </line-breakpoint>
-      </breakpoints>
-      <option name="time" value="104" />
+      <option name="time" value="106" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
@@ -371,6 +366,7 @@
         <watch expression="points4D" />
         <watch expression="matchPointsNorm1" />
         <watch expression="TcwCV" />
+        <watch expression="indexInliers" />
       </configuration>
     </watches-manager>
   </component>
@@ -777,7 +773,7 @@
     <entry file="file://$PROJECT_DIR$/SFM.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="309">
-          <caret line="38" column="23" lean-forward="true" selection-start-line="38" selection-start-column="23" selection-end-line="38" selection-end-column="23" />
+          <caret line="74" column="56" selection-start-line="74" selection-start-column="56" selection-end-line="74" selection-end-column="56" />
           <folding>
             <element signature="e#95#122#0" expanded="true" />
           </folding>
@@ -786,12 +782,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SFM.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-757">
-          <caret line="61" column="24" selection-start-line="61" selection-start-column="24" selection-end-line="61" selection-end-column="24" />
+        <state relative-caret-position="177">
+          <caret line="328" column="9" selection-start-line="328" selection-start-column="9" selection-end-line="328" selection-end-column="9" />
           <folding>
             <element signature="e#46#62#0" expanded="true" />
             <element signature="e#446#514#0" />
-            <element signature="e#2420#3189#0" expanded="true" />
+            <element signature="e#5378#5796#0" />
             <element signature="e#11739#12241#0" />
             <element signature="e#12053#12228#0" expanded="true" />
           </folding>

@@ -65,7 +65,7 @@ namespace sky {
             matchPoints2.push_back(keyFrame2->keyPoints[match.trainIdx].pt);
         }
 
-        Mat essentialMatrix;
+        Mat essentialMatrix, inlierMask;;
         essentialMatrix = findEssentialMat(matchPoints1, matchPoints2,
                                            keyFrame2->frame->camera->getFocalLength(),
                                            keyFrame2->frame->camera->getPrincipalPoint(),
@@ -106,30 +106,6 @@ namespace sky {
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
 
-/*        cout << "essentialMatrix类型是" << essentialMatrix.type() << endl;
-        cout << "recoverPose输出的points4D类型是" << points4D.type() << endl;
-        vector<Point2f> matchPointsNorm1, matchPointsNorm2;
-        matchPointsNorm1.reserve(matchPoints1.size());
-        matchPointsNorm2.reserve(matchPoints2.size());
-        for (int i = 0; i < matchPoints1.size(); ++i) {
-            matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(matchPoints1[i]));
-            matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(matchPoints2[i]));
-#ifdef DEBUG
-            if (i < 5) {
-                cout << matchPoints1[i] << endl;
-                cout << matchPointsNorm1.back() << endl << endl;
-            }
-#endif
-        }
-        triangulatePoints(keyFrame1->frame->getTcw34MatCV(), keyFrame2->frame->getTcw34MatCV(),
-                          matchPointsNorm1, matchPointsNorm2, points4D);
-        cout << keyFrame1->frame->getTcw34MatCV() << endl << endl;
-        cout << keyFrame2->frame->getTcw34MatCV() << endl << endl;
-
-        for (int i = 0; i < 5; ++i) {
-            cout << points4D.col(i) << endl << endl;
-        }
-        cout << "triangulatePoints输出的points4D类型是" << points4D.type() << endl;*/
 
 
 #ifdef DEBUG
@@ -147,7 +123,7 @@ namespace sky {
 
 
         //保存三角化后的点到地图
-        convAndAddMappoints();
+        convAndAddMappoints(inlierMask);
 
         //可视化重投影点
 #ifdef CVVISUAL_DEBUGMODE
@@ -242,11 +218,11 @@ namespace sky {
                           keyFrame1->matchPoints, keyFrame1->matchPoints, points4D);*/
 
         //转换齐次坐标点，保存到Map
-        convAndAddMappoints();
+        convAndAddMappoints(Mat());
 
     }
 
-    void SFM::convAndAddMappoints() {//归一化齐次坐标点,转换Mat
+    void SFM::convAndAddMappoints(const Mat& inlierMask) {//归一化齐次坐标点,转换Mat
 #ifdef DEBUG
         int numOldMappoints = map->mapPoints.size();
         //cout << "showing 5 samples of 3D points:" << endl;
@@ -351,7 +327,6 @@ namespace sky {
             keyFrame1->image.release();
             keyFrame1->descriptors.release();
         }
-        inlierMask.release();
         matches.resize(0);
         points4D.release();
         //加载新帧
