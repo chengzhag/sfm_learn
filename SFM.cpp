@@ -25,7 +25,7 @@ namespace sky {
 
         //3D-2D
 
-        for (; imageDirIt != imagesDir.end()-6; ++imageDirIt) {
+        for (; imageDirIt != imagesDir.end() - 6; ++imageDirIt) {
             Mat image = imread(*imageDirIt);
 #ifdef DEBUG
             cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
@@ -59,7 +59,7 @@ namespace sky {
 
         //解对极约束并三角化
 
-        vector<Point2f> matchPoints1,matchPoints2;
+        vector<Point2f> matchPoints1, matchPoints2;
         for (auto match:matches) {
             matchPoints1.push_back(keyFrame1->keyPoints[match.queryIdx].pt);
             matchPoints2.push_back(keyFrame2->keyPoints[match.trainIdx].pt);
@@ -105,7 +105,6 @@ namespace sky {
                 eigenR2,
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
-
 
 
 #ifdef DEBUG
@@ -198,11 +197,29 @@ namespace sky {
         //匹配帧间特征点
         matchWithFrameAndFilt();
 
+        //通过findEssentialMat筛选异常点
+        vector<Point2f> matchPoints1, matchPoints2;
+        for (auto match:matches) {
+            matchPoints1.push_back(keyFrame1->keyPoints[match.queryIdx].pt);
+            matchPoints2.push_back(keyFrame2->keyPoints[match.trainIdx].pt);
+        }
+        Mat inlierMask;
+        findEssentialMat(matchPoints1, matchPoints2,
+                         keyFrame2->frame->camera->getFocalLength(),
+                         keyFrame2->frame->camera->getPrincipalPoint(),
+                         RANSAC, 0.999, 1.0, inlierMask);
+#ifdef DEBUG
+        int nPointsFindEssentialMat = countNonZero(inlierMask);
+        cout << "findEssentialMat: " << nPointsFindEssentialMat << " valid points, " <<
+             (float) nPointsFindEssentialMat * 100 / matchPoints1.size()
+             << "% of " << matchPoints1.size() << " points are used" << endl;
+#endif
+
         //三角化
         vector<Point2f> matchPointsNorm1, matchPointsNorm2;
         matchPointsNorm1.reserve(matches.size());
         matchPointsNorm2.reserve(matches.size());
-        for (auto& match:matches) {
+        for (auto &match:matches) {
             matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(keyFrame1->keyPoints[match.queryIdx].pt));
             matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(keyFrame2->keyPoints[match.trainIdx].pt));
 /*#ifdef DEBUG
@@ -218,11 +235,11 @@ namespace sky {
                           keyFrame1->matchPoints, keyFrame1->matchPoints, points4D);*/
 
         //转换齐次坐标点，保存到Map
-        convAndAddMappoints(Mat());
+        convAndAddMappoints(inlierMask);
 
     }
 
-    void SFM::convAndAddMappoints(const Mat& inlierMask) {//归一化齐次坐标点,转换Mat
+    void SFM::convAndAddMappoints(const Mat &inlierMask) {//归一化齐次坐标点,转换Mat
 #ifdef DEBUG
         int numOldMappoints = map->mapPoints.size();
         //cout << "showing 5 samples of 3D points:" << endl;
