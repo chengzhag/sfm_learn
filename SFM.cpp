@@ -19,15 +19,21 @@ namespace sky {
 
         initialize(image1, image2, camera);
 
+        //可视化初始化点云
+#ifdef CLOUDVIEWER_DEBUG
+        map->visInCloudViewer();
+#endif
+
         //3D-2D
 
-        for (; imageDirIt != imagesDir.end();
-               ++imageDirIt) {
+        for (; imageDirIt != imagesDir.begin()+4; ++imageDirIt) {
             Mat image = imread(*imageDirIt);
 #ifdef DEBUG
             cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
 #endif
+#ifdef CVVISUAL_DEBUGMODE
             cvv::showImage(image, CVVISUAL_LOCATION, "Adding image: " + *imageDirIt, "");
+#endif
 
             step(image, camera);
         }
@@ -49,7 +55,7 @@ namespace sky {
         pushImage(image2, camera);
         detectAndCompute();
         //筛选匹配点
-        matchAndFilt();
+        matchWithFrameAndFilt();
         //解对极约束并三角化
         solve2D2DandTriangulate();
         //保存三角化后的点到地图
@@ -58,11 +64,6 @@ namespace sky {
         //可视化重投影点
 #ifdef CVVISUAL_DEBUGMODE
 
-#endif
-
-        //可视化初始化点云
-#ifdef CLOUDVIEWER_DEBUG
-        map->visInCloudViewer();
 #endif
 
 
@@ -80,7 +81,7 @@ namespace sky {
         Mat descriptorsMap;
         vector<Point3f> points3D;
         for (MapPoint::Ptr &point:map->mapPoints) {
-            if (map->frames.back()->isInFrame(point->pos)) {
+            if (keyFrame1->frame->isInFrame(point->pos)) {
                 points3D.push_back(point->getPosCV());
                 descriptorsMap.push_back(point->descriptor);
             }
@@ -88,9 +89,10 @@ namespace sky {
 #ifdef DEBUG
         cout << "found " << points3D.size() << " 3D points in the last frame" << endl;
 #endif
+        //匹配地图特征点
         matcher->match(descriptorsMap, keyFrame2->descriptors, matches, cv::noArray());
 #ifdef DEBUG
-        cout << "found " << matches.size() << " keypoints" << endl;
+        cout << "found " << matches.size() << " keypoints matched with 3D points" << endl;
 #endif
 
         //筛选匹配点
@@ -121,15 +123,24 @@ namespace sky {
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
 
-        //提取最后两帧特征点
+        //匹配帧间特征点
+        matchWithFrameAndFilt();
 
-        //triangulatePoints(map->frames.back()->getProjMatCV,keyFrame2->frame->getProjMatCV())
-        
+        //三角化
+        triangulatePoints(keyFrame1->frame->getProjMatCV(), keyFrame2->frame->getProjMatCV(),
+                          keyFrame1->matchPoints, keyFrame2->matchPoints, points4D);
+
+        //转换齐次坐标点，保存到Map
+        convAndAddMappoints();
+
     }
 
     void SFM::convAndAddMappoints() {//归一化齐次坐标点,转换Mat
+#ifdef DEBUG
+        int numOldMappoints = map->mapPoints.size();
+#endif
         for (int i = 0; i < points4D.cols; ++i) {
-            if (!inlierMask.at<uint8_t>(i, 0))
+            if (!inlierMask.empty() && !inlierMask.at<uint8_t>(i, 0))
                 continue;
             // 转换齐次坐标
             Mat x = points4D.col(i);
@@ -140,11 +151,11 @@ namespace sky {
             Mat descriptor = keyFrame2->descriptors.row(matches[i].trainIdx);
             //获取颜色
             Vec3b rgb;
-            if (keyFrame1->image.type() == CV_8UC3) {
-                rgb = keyFrame1->image.at<Vec3b>(keyFrame2->keyPoints[matches[i].trainIdx].pt);
+            if (keyFrame2->image.type() == CV_8UC3) {
+                rgb = keyFrame2->image.at<Vec3b>(keyFrame2->matchPoints[i]);
                 swap(rgb[0], rgb[2]);
-            } else if (keyFrame1->image.type() == CV_8UC1) {
-                cvtColor(keyFrame1->image.at<uint8_t>(keyFrame2->keyPoints[matches[i].trainIdx].pt),
+            } else if (keyFrame2->image.type() == CV_8UC1) {
+                cvtColor(keyFrame2->image.at<uint8_t>(keyFrame2->matchPoints[i]),
                          rgb,
                          COLOR_GRAY2RGB);
             }
@@ -157,7 +168,8 @@ namespace sky {
             map->addMapPoint(mapPoint);
         }
 #ifdef DEBUG
-        cout << "got " << map->mapPoints.size() << " 3D points" << endl;
+        cout << map->mapPoints.size() - numOldMappoints << " new 3D points added to the map" << endl
+             << map->mapPoints.size() << " in total" << endl;
 #endif
     }
 
@@ -176,18 +188,19 @@ namespace sky {
         //可视化用于三角化的点
 #ifdef CVVISUAL_DEBUGMODE
         vector<DMatch> inlierMatches;
-        vector<cv::KeyPoint> inlierkeyFrame1->keyPoints, inlierkeyFrame2->keyPoints;
+        vector<cv::KeyPoint> inlierKeyPoints1, inlierKeyPoints2;
         for (int i = 0; i < matches.size(); ++i) {
             if (!inlierMask.at<uint8_t>(i, 0))
                 continue;
             inlierMatches.push_back(matches[i]);
-            inlierMatches.back().trainIdx = inlierkeyFrame1->keyPoints.size();
-            inlierMatches.back().queryIdx = inlierkeyFrame2->keyPoints.size();
-            inlierkeyFrame1->keyPoints.push_back(keyFrame1->keyPoints[matches[i].queryIdx]);
-            inlierkeyFrame2->keyPoints.push_back(keyFrame2->keyPoints[matches[i].trainIdx]);
+            inlierMatches.back().trainIdx = inlierKeyPoints1.size();
+            inlierMatches.back().queryIdx = inlierKeyPoints2.size();
+            inlierKeyPoints1.push_back(keyFrame1->keyPoints[matches[i].queryIdx]);
+            inlierKeyPoints2.push_back(keyFrame2->keyPoints[matches[i].trainIdx]);
         }
-        cvv::debugDMatch(keyFrame1->image, inlierkeyFrame1->keyPoints, keyFrame2->image, inlierkeyFrame2->keyPoints, inlierMatches, CVVISUAL_LOCATION,
+        cvv::debugDMatch(keyFrame1->image, inlierKeyPoints1, keyFrame2->image, inlierKeyPoints2, inlierMatches, CVVISUAL_LOCATION,
                          "match used in triangulation");
+
 #endif
 
         //解frame2的R、t并计算se3,三角化
@@ -216,10 +229,10 @@ namespace sky {
 
     }
 
-    void SFM::matchAndFilt() {
+    void SFM::matchWithFrameAndFilt() {
         matcher->match(keyFrame1->descriptors, keyFrame2->descriptors, matches, noArray());
 #ifdef DEBUG
-        cout << "found " << matches.size() << " keypoints" << endl;
+        cout << "found " << matches.size() << " keypoints matched with last frame" << endl;
 #endif
         //筛选匹配点
         filtMatches();
@@ -229,6 +242,8 @@ namespace sky {
                          "2D-2D points matching");
 #endif
 
+        keyFrame1->matchPoints.resize(0);
+        keyFrame2->matchPoints.resize(0);
         for (auto match:matches) {
             keyFrame1->matchPoints.push_back(keyFrame1->keyPoints[match.queryIdx].pt);
             keyFrame2->matchPoints.push_back(keyFrame2->keyPoints[match.trainIdx].pt);
@@ -248,7 +263,7 @@ namespace sky {
             if (match.distance <= 5 * minDis)
                 goodMatches.push_back(match);
         }
-        matches=goodMatches;
+        matches = goodMatches;
 #ifdef DEBUG
         cout << "found " << matches.size() << " good matches" << endl;
 #endif

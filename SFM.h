@@ -74,7 +74,7 @@ namespace sky {
         void detectAndCompute();
 
         //匹配、筛选特征点
-        void matchAndFilt();
+        void matchWithFrameAndFilt();
 
         //转换齐次坐标点，保存到Map
         void convAndAddMappoints();

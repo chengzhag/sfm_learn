@@ -15,8 +15,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad4cc4b4-99f2-48db-935f-f97f9f0e4516" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SFM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SFM.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SFM.h" beforeDir="false" afterPath="$PROJECT_DIR$/SFM.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/cmake-build-release/" />
@@ -31,14 +33,14 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:DebugWithCloudViewer" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:DebugWithCvv" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="384">
-              <caret line="53" selection-start-line="53" selection-end-line="53" />
+            <state relative-caret-position="270">
+              <caret line="53" column="4" selection-start-line="53" selection-start-column="4" selection-end-line="53" selection-end-column="4" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -46,16 +48,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SFM.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SFM.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SFM.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="197">
-              <caret line="252" column="35" selection-start-line="252" selection-start-column="35" selection-end-line="252" selection-end-column="35" />
+            <state relative-caret-position="-621">
+              <caret line="21" column="18" lean-forward="true" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
               <folding>
                 <element signature="e#46#62#0" expanded="true" />
-                <element signature="e#5782#6631#0" expanded="true" />
-                <element signature="e#8754#8929#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="165">
+              <caret line="14" column="64" selection-start-line="14" selection-start-column="46" selection-end-line="14" selection-end-column="64" />
             </state>
           </provider>
         </entry>
@@ -63,8 +72,8 @@
       <file leaf-file-name="SFM.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SFM.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="40" column="8" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="23" />
+            <state relative-caret-position="181">
+              <caret line="52" column="18" selection-start-line="52" selection-start-column="18" selection-end-line="52" selection-end-column="18" />
               <folding>
                 <element signature="e#95#122#0" expanded="true" />
               </folding>
@@ -75,7 +84,7 @@
       <file leaf-file-name="MapPoint.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MapPoint.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="447">
+            <state relative-caret-position="389">
               <caret line="36" column="27" selection-start-line="36" selection-start-column="27" selection-end-line="36" selection-end-column="27" />
             </state>
           </provider>
@@ -94,6 +103,7 @@
       <find>keypoints</find>
       <find>descriptors2</find>
       <find>goodMatches</find>
+      <find>CVVISUAL_DEBUGMODE</find>
     </findStrings>
     <replaceStrings>
       <replace>Sophus::SE3</replace>
@@ -122,13 +132,13 @@
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/Camera.h" />
         <option value="$PROJECT_DIR$/Map.h" />
-        <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/Map.cpp" />
         <option value="$PROJECT_DIR$/Frame.cpp" />
         <option value="$PROJECT_DIR$/Frame.h" />
         <option value="$PROJECT_DIR$/MapPoint.h" />
         <option value="$PROJECT_DIR$/SFM.h" />
         <option value="$PROJECT_DIR$/SFM.cpp" />
+        <option value="$PROJECT_DIR$/main.cpp" />
       </list>
     </option>
   </component>
@@ -153,7 +163,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -170,6 +179,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -229,12 +239,13 @@
       <workItem from="1529055312625" duration="19422000" />
       <workItem from="1529108364878" duration="1031000" />
       <workItem from="1529111447264" duration="6152000" />
-      <workItem from="1529119113399" duration="32305000" />
+      <workItem from="1529119113399" duration="34520000" />
+      <workItem from="1529198732396" duration="2240000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="106606000" />
+    <option name="totallyTimeSpent" value="111061000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1246" height="903" extended-state="4" />
@@ -246,12 +257,12 @@
       <window_info anchor="bottom" id="CMake" order="11" weight="0.32912987" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32912987" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32660782" />
       <window_info anchor="bottom" id="Version Control" order="10" weight="0.32912987" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32660782" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32912987" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39848676" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.39848676" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -294,7 +305,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="91" />
+      <option name="time" value="102" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
@@ -305,11 +316,27 @@
         <watch expression="cloud" />
         <watch expression="point" />
         <watch expression="map-&gt;mapPoints" />
+        <watch expression="keyFrame1-&gt;matchPoints" />
+        <watch expression="keyFrame2-&gt;matchPoints" />
+        <watch expression="keyFrame1-&gt;matchPoints.size()" />
+        <watch expression="keyFrame2-&gt;matchPoints.size()" />
+        <watch expression="keyFrame1-&gt;frame-&gt;getProjMatCV()" />
+        <watch expression="points4D" />
       </configuration>
     </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>keyFrame2-&gt;matchPoints.size()</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>keyFrame1-&gt;matchPoints.size()</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>points3D.size()</expression-string>
         <language-id>ObjectiveC</language-id>
@@ -342,16 +369,6 @@
       </expression>
       <expression>
         <expression-string>x.at&lt;double&gt;(3, 0)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x.at&lt;float&gt;(3, 0)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x /= x.at&lt;float&gt;(3, 0)</expression-string>
         <language-id>ObjectiveC</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -458,13 +475,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/include/opencv2/cvv/call_meta_data.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="35" column="32" selection-start-line="35" selection-start-column="32" selection-end-line="35" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/include/c++/5/bits/stl_vector.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="148">
@@ -549,13 +559,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="64" selection-start-line="8" selection-start-column="46" selection-end-line="8" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/include/pcl-1.8/pcl/visualization/pcl_visualizer.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
@@ -605,27 +608,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Map.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="50" column="48" selection-start-line="46" selection-start-column="12" selection-end-line="50" selection-end-column="48" />
-          <folding>
-            <element signature="e#46#62#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../git/opencv/modules/core/src/convert.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="130">
           <caret line="1322" selection-start-line="1322" selection-end-line="1322" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../git/opencv/modules/core/src/system.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="913" selection-start-line="913" selection-end-line="913" />
         </state>
       </provider>
     </entry>
@@ -691,41 +677,70 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.cpp">
+    <entry file="file://$PROJECT_DIR$/../../git/opencv/modules/core/src/system.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="53" selection-start-line="53" selection-end-line="53" />
+        <state relative-caret-position="265">
+          <caret line="913" selection-start-line="913" selection-end-line="913" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Map.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="39">
+          <caret line="28" column="33" selection-start-line="28" selection-start-column="24" selection-end-line="28" selection-end-column="33" />
           <folding>
-            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#46#62#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/MapPoint.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="447">
+        <state relative-caret-position="389">
           <caret line="36" column="27" selection-start-line="36" selection-start-column="27" selection-end-line="36" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/include/opencv2/cvv/call_meta_data.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SFM.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="159">
-          <caret line="40" column="8" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="23" />
+        <state relative-caret-position="181">
+          <caret line="52" column="18" selection-start-line="52" selection-start-column="18" selection-end-line="52" selection-end-column="18" />
           <folding>
             <element signature="e#95#122#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="14" column="64" selection-start-line="14" selection-start-column="46" selection-end-line="14" selection-end-column="64" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/SFM.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="252" column="35" selection-start-line="252" selection-start-column="35" selection-end-line="252" selection-end-column="35" />
+        <state relative-caret-position="-621">
+          <caret line="21" column="18" lean-forward="true" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
           <folding>
             <element signature="e#46#62#0" expanded="true" />
-            <element signature="e#5782#6631#0" expanded="true" />
-            <element signature="e#8754#8929#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="53" column="4" selection-start-line="53" selection-start-column="4" selection-end-line="53" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
