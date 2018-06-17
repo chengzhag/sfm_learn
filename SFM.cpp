@@ -25,7 +25,7 @@ namespace sky {
 
         //3D-2D
 
-        for (; imageDirIt != imagesDir.end() - 6; ++imageDirIt) {
+        for (; imageDirIt != imagesDir.end(); ++imageDirIt) {
             Mat image = imread(*imageDirIt);
 #ifdef DEBUG
             cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
@@ -245,14 +245,23 @@ namespace sky {
         //cout << "showing 5 samples of 3D points:" << endl;
 #endif
         for (int i = 0; i < points4D.cols; ++i) {
+            //如果是outlier，跳过
             if (!inlierMask.empty() && !inlierMask.at<uint8_t>(i, 0))
                 continue;
+
+            //获取描述子
+            Mat descriptor = keyFrame2->descriptors.row(matches[i].trainIdx);
+
+            //如果是上一帧加到地图中的点，更新描述子后跳过
+            if (keyFrame1->inlierPoints.find(matches[i].trainIdx)!=keyFrame1->inlierPoints.end()){
+                keyFrame1->inlierPoints[matches[i].trainIdx]->descriptor=descriptor;
+                continue;
+            }
+
             // 转换齐次坐标
             Mat x = points4D.col(i);
 
             //向地图增加点
-            //获取描述子
-            Mat descriptor = keyFrame2->descriptors.row(matches[i].trainIdx);
             //获取颜色
             Vec3b rgb;
             if (keyFrame2->image.type() == CV_8UC3) {
@@ -281,6 +290,8 @@ namespace sky {
                 ));
             }
 
+            //记录当前帧加入地图的mapPoint和特征点下标
+            keyFrame2->inlierPoints[matches[i].trainIdx]=mapPoint;
 
 /*#ifdef DEBUG
             if (i < 5)

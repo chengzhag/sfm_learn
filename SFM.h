@@ -10,6 +10,7 @@
 #include "Frame.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/cvv.hpp>
+#include <unordered_map>
 
 
 namespace sky {
@@ -30,6 +31,7 @@ namespace sky {
             Mat image;
             vector<cv::KeyPoint> keyPoints;
             Mat descriptors;
+            unordered_map<int,MapPoint::Ptr> inlierPoints;
 
             KeyFrame(const Frame::Ptr &frame, const Mat &image) :
                     frame(frame), image(image) {}
