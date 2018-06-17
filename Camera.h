@@ -45,8 +45,13 @@ namespace sky {
             return cv::Point2d(cx, cy);
         }
 
-        cv::Matx<float, 3, 3> getIntrinsics() {
+        cv::Matx<float, 3, 3> getKMatxCV() {
             return cv::Matx<float, 3, 3>(fx, 0, cx, 0, fy, cy, 0, 0, 1);
+        }
+
+        cv::Mat getKMatCV() {
+            Mat K=(Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+            return K;
         }
     };
 

@@ -29,17 +29,21 @@ namespace sky {
 
         Vector3d getCamCenterEigen() const;
 
-        cv::Mat getTcwCV() {
+        cv::Mat getTcwMatCV() {
             cv::Mat TcwCV;
             cv::eigen2cv(T_c_w.matrix(), TcwCV);
             return TcwCV;
         }
 
+        cv::Mat getTcw34MatCV() {
+            auto TcwCV = getTcwMatCV();
+            Mat Tcw34;
+            TcwCV(cv::Range(0, 3), cv::Range(0, 4)).convertTo(Tcw34, CV_32FC1);
+            return Tcw34;
+        }
+
         cv::Mat getProjMatCV() {
-            auto TcwCV = getTcwCV();
-            Mat projMatx;
-            TcwCV(cv::Range(0, 3), cv::Range(0, 4)).convertTo(projMatx, CV_32FC1);
-            return projMatx;
+            return camera->getKMatCV()*getTcw34MatCV();
         }
 
 

@@ -26,7 +26,7 @@ namespace sky {
 
         //3D-2D
 
-        for (; imageDirIt != imagesDir.begin()+4; ++imageDirIt) {
+        for (; imageDirIt != imagesDir.begin() + 4; ++imageDirIt) {
             Mat image = imread(*imageDirIt);
 #ifdef DEBUG
             cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
@@ -105,7 +105,7 @@ namespace sky {
             points3DPnP.push_back(points3D[match.queryIdx]);
         }
         Mat r, t, indexInliers;
-        solvePnPRansac(points3DPnP, points2DPnP, camera->getIntrinsics(),
+        solvePnPRansac(points3DPnP, points2DPnP, camera->getKMatxCV(),
                        cv::noArray(), r, t, false, 100, 8.0, 0.99,
                        indexInliers);
         Mat R;
@@ -127,8 +127,23 @@ namespace sky {
         matchWithFrameAndFilt();
 
         //三角化
-        triangulatePoints(keyFrame1->frame->getProjMatCV(), keyFrame2->frame->getProjMatCV(),
-                          keyFrame1->matchPoints, keyFrame2->matchPoints, points4D);
+        vector<Point2f> matchPointsNorm1, matchPointsNorm2;
+        matchPointsNorm1.reserve(keyFrame1->matchPoints.size());
+        matchPointsNorm2.reserve(keyFrame2->matchPoints.size());
+        for (int i = 0; i < keyFrame1->matchPoints.size(); ++i) {
+            matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(keyFrame1->matchPoints[i]));
+            matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(keyFrame2->matchPoints[i]));
+#ifdef DEBUG
+            if (i < 5) {
+                cout << keyFrame1->matchPoints[i] << endl;
+                cout << matchPointsNorm1.back() << endl << endl;
+            }
+#endif
+        }
+        triangulatePoints(keyFrame1->frame->getTcw34MatCV(), keyFrame2->frame->getTcw34MatCV(),
+                          matchPointsNorm1, matchPointsNorm2, points4D);
+/*        triangulatePoints(keyFrame1->frame->getProjMatCV(), keyFrame2->frame->getProjMatCV(),
+                          keyFrame1->matchPoints, keyFrame1->matchPoints, points4D);*/
 
         //转换齐次坐标点，保存到Map
         convAndAddMappoints();
@@ -138,13 +153,13 @@ namespace sky {
     void SFM::convAndAddMappoints() {//归一化齐次坐标点,转换Mat
 #ifdef DEBUG
         int numOldMappoints = map->mapPoints.size();
+        cout << "showing 5 samples of 3D points:" << endl;
 #endif
         for (int i = 0; i < points4D.cols; ++i) {
             if (!inlierMask.empty() && !inlierMask.at<uint8_t>(i, 0))
                 continue;
             // 转换齐次坐标
             Mat x = points4D.col(i);
-            x /= x.at<double>(3, 0); // 归一化
 
             //向地图增加点
             //获取描述子
@@ -159,11 +174,30 @@ namespace sky {
                          rgb,
                          COLOR_GRAY2RGB);
             }
-            MapPoint::Ptr mapPoint(new MapPoint(Vector3d(x.at<double>(0, 0),
-                                                         x.at<double>(1, 0),
-                                                         x.at<double>(2, 0)),
-                                                descriptor, rgb, keyFrame1->frame
-            ));
+
+            MapPoint::Ptr mapPoint;
+            if(x.type()==CV_32FC1){
+                x /= x.at<float>(3, 0); // 归一化
+                mapPoint=MapPoint::Ptr(new MapPoint(Vector3d(x.at<float>(0, 0),
+                                                             x.at<float>(1, 0),
+                                                             x.at<float>(2, 0)),
+                                                    descriptor, rgb, keyFrame1->frame
+                ));
+            }else if(x.type()==CV_64FC1){
+                x /= x.at<double>(3, 0);
+                mapPoint=MapPoint::Ptr(new MapPoint(Vector3d(x.at<double>(0, 0),
+                                                              x.at<double>(1, 0),
+                                                              x.at<double>(2, 0)),
+                                                     descriptor, rgb, keyFrame1->frame
+                ));
+            }
+
+
+#ifdef DEBUG
+            if (i < 5)
+                cout << mapPoint->pos << endl << endl;
+#endif
+
             mapPoint->addObervedFrame(keyFrame2->frame);
             map->addMapPoint(mapPoint);
         }
@@ -206,7 +240,7 @@ namespace sky {
         //解frame2的R、t并计算se3,三角化
         Mat R, t;
         recoverPose(essentialMatrix, keyFrame1->matchPoints, keyFrame2->matchPoints,
-                    keyFrame2->frame->camera->getIntrinsics(), R, t, 100, inlierMask,
+                    keyFrame2->frame->camera->getKMatxCV(), R, t, 100, inlierMask,
                     points4D);
         Eigen::Matrix3d eigenR2;
         cv2eigen(R, eigenR2);
@@ -214,6 +248,33 @@ namespace sky {
                 eigenR2,
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
+
+/*        cout << "essentialMatrix类型是" << essentialMatrix.type() << endl;
+        cout << "recoverPose输出的points4D类型是" << points4D.type() << endl;
+        vector<Point2f> matchPointsNorm1, matchPointsNorm2;
+        matchPointsNorm1.reserve(keyFrame1->matchPoints.size());
+        matchPointsNorm2.reserve(keyFrame2->matchPoints.size());
+        for (int i = 0; i < keyFrame1->matchPoints.size(); ++i) {
+            matchPointsNorm1.push_back(keyFrame1->frame->camera->pixel2normal(keyFrame1->matchPoints[i]));
+            matchPointsNorm2.push_back(keyFrame2->frame->camera->pixel2normal(keyFrame2->matchPoints[i]));
+#ifdef DEBUG
+            if (i < 5) {
+                cout << keyFrame1->matchPoints[i] << endl;
+                cout << matchPointsNorm1.back() << endl << endl;
+            }
+#endif
+        }
+        triangulatePoints(keyFrame1->frame->getTcw34MatCV(), keyFrame2->frame->getTcw34MatCV(),
+                          matchPointsNorm1, matchPointsNorm2, points4D);
+        cout << keyFrame1->frame->getTcw34MatCV() << endl << endl;
+        cout << keyFrame2->frame->getTcw34MatCV() << endl << endl;
+
+        for (int i = 0; i < 5; ++i) {
+            cout << points4D.col(i) << endl << endl;
+        }
+        cout << "triangulatePoints输出的points4D类型是" << points4D.type() << endl;*/
+
+
 #ifdef DEBUG
         int nPointsRecoverPose = countNonZero(inlierMask);
         cout << "recoverPose: " << nPointsRecoverPose << " valid points, " <<
@@ -221,9 +282,9 @@ namespace sky {
              << "% of " << keyFrame1->matchPoints.size() << " points are used" << endl;
 /*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
         cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
-        cout << "2D-2D frame2 SE3: " << endl << frame2->T_c_w << endl;
-        cout << "2D-2D frame2 Tcw: " << endl << frame2->getTcwCV() << endl << endl;
-        cout << "2D-2D frame2 ProjMat: " << endl << frame2->getProjMatCV() << endl << endl;*/
+        cout << "2D-2D frame2 SE3: " << endl << keyFrame2->frame->T_c_w << endl;
+        cout << "2D-2D frame2 Tcw: " << endl << keyFrame2->frame->getTcwMatCV() << endl << endl;
+        cout << "2D-2D frame2 ProjMat: " << endl << keyFrame2->frame->getTcw34MatCV() << endl << endl;*/
 #endif
 
 
