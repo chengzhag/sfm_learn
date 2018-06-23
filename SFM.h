@@ -31,7 +31,7 @@ namespace sky {
             Mat image;
             vector<cv::KeyPoint> keyPoints;
             Mat descriptors;
-            unordered_map<int,MapPoint::Ptr> inlierPoints;
+            unordered_map<int,MapPoint::Ptr> inlierPoints;//在descriptors或keyPoints中的序号和对应的地图点
 
             KeyFrame(const Frame::Ptr &frame, const Mat &image) :
                     frame(frame), image(image) {}
@@ -39,8 +39,6 @@ namespace sky {
 
         KeyFrame::Ptr keyFrame1, keyFrame2;
         vector<DMatch> matches;
-        Camera::Ptr currentCamera;
-        Mat points4D;
 
     public:
         SFM(const cv::Ptr<cv::Feature2D> &feature2D,
@@ -74,7 +72,7 @@ namespace sky {
         void matchWithFrameAndFilt();
 
         //转换齐次坐标点，保存到Map
-        void convAndAddMappoints(const Mat& inlierMask);
+        void convAndAddMappoints(const Mat& inlierMask,const Mat &points4D);
 
         //筛选匹配点
         void filtMatches();
