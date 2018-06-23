@@ -62,7 +62,8 @@ namespace sky {
         pushImage(image2, camera);
         detectAndCompute();
         //筛选匹配点
-        matchWithFrameAndFilt();
+        vector<DMatch> matches;
+        matchWithFrameAndFilt(matches);
 
 
         //解对极约束并三角化
@@ -130,7 +131,7 @@ namespace sky {
 
 
         //保存三角化后的点到地图
-        convAndAddMappoints(inlierMask, points4D);
+        convAndAddMappoints(inlierMask, points4D, matches);
 
         //可视化重投影点
 #ifdef CVVISUAL_DEBUGMODE
@@ -159,13 +160,14 @@ namespace sky {
         cout << "found " << points3D.size() << " 3D points in the last frame" << endl;
 #endif
         //匹配地图特征点
+        vector<DMatch> matches;
         matcher->match(descriptorsMap, keyFrame2->descriptors, matches, cv::noArray());
 #ifdef DEBUG
         cout << "found " << matches.size() << " keypoints matched with 3D points" << endl;
 #endif
 
         //筛选匹配点
-        filtMatches();
+        filtMatches(matches);
 
         //解PnP得相机位姿
         vector<Point2f> points2DPnP;
@@ -203,7 +205,7 @@ namespace sky {
 
 
         //匹配帧间特征点
-        matchWithFrameAndFilt();
+        matchWithFrameAndFilt(matches);
 
         //通过findEssentialMat筛选异常点
         vector<Point2f> matchPoints1, matchPoints2;
@@ -244,11 +246,11 @@ namespace sky {
                           keyFrame1->matchPoints, keyFrame1->matchPoints, points4D);*/
 
         //转换齐次坐标点，保存到Map
-        convAndAddMappoints(inlierMask, points4D);
+        convAndAddMappoints(inlierMask, points4D, matches);
 
     }
 
-    void SFM::convAndAddMappoints(const Mat &inlierMask,const Mat &points4D) {//归一化齐次坐标点,转换Mat
+    void SFM::convAndAddMappoints(const Mat &inlierMask, const Mat &points4D, const vector<DMatch> &matches) {//归一化齐次坐标点,转换Mat
 #ifdef DEBUG
         int numOldMappoints = map->mapPoints.size();
         //cout << "showing 5 samples of 3D points:" << endl;
@@ -324,13 +326,13 @@ namespace sky {
     }
 
 
-    void SFM::matchWithFrameAndFilt() {
+    void SFM::matchWithFrameAndFilt(vector<DMatch> &matches) {
         matcher->match(keyFrame1->descriptors, keyFrame2->descriptors, matches, noArray());
 #ifdef DEBUG
         cout << "found " << matches.size() << " keypoints matched with last frame" << endl;
 #endif
         //筛选匹配点
-        filtMatches();
+        filtMatches(matches);
 
 #ifdef CVVISUAL_DEBUGMODE
         cvv::debugDMatch(keyFrame1->image, keyFrame1->keyPoints, keyFrame2->image, keyFrame2->keyPoints, matches, CVVISUAL_LOCATION,
@@ -338,7 +340,7 @@ namespace sky {
 #endif
     }
 
-    void SFM::filtMatches() {
+    void SFM::filtMatches(vector<DMatch> &matches) {
         auto minMaxDis = minmax_element(
                 matches.begin(), matches.end(),
                 [](const DMatch &m1, const DMatch &m2) {
@@ -371,7 +373,6 @@ namespace sky {
             keyFrame1->image.release();
             keyFrame1->descriptors.release();
         }
-        matches.resize(0);
         //加载新帧
         keyFrame1 = keyFrame2;
         Frame::Ptr frame(new Frame(camera, image));

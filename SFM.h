@@ -31,14 +31,13 @@ namespace sky {
             Mat image;
             vector<cv::KeyPoint> keyPoints;
             Mat descriptors;
-            unordered_map<int,MapPoint::Ptr> inlierPoints;//在descriptors或keyPoints中的序号和对应的地图点
+            unordered_map<int, MapPoint::Ptr> inlierPoints;//在descriptors或keyPoints中的序号和对应的地图点
 
             KeyFrame(const Frame::Ptr &frame, const Mat &image) :
                     frame(frame), image(image) {}
         };
 
         KeyFrame::Ptr keyFrame1, keyFrame2;
-        vector<DMatch> matches;
 
     public:
         SFM(const cv::Ptr<cv::Feature2D> &feature2D,
@@ -69,13 +68,14 @@ namespace sky {
         void detectAndCompute();
 
         //匹配、筛选特征点
-        void matchWithFrameAndFilt();
+        void matchWithFrameAndFilt(vector<DMatch> &matches);
 
         //转换齐次坐标点，保存到Map
-        void convAndAddMappoints(const Mat& inlierMask,const Mat &points4D);
+        void convAndAddMappoints(
+                const Mat &inlierMask, const Mat &points4D, const vector<DMatch> &matches);
 
         //筛选匹配点
-        void filtMatches();
+        void filtMatches(vector<DMatch> &matches);
     };
 
 }
