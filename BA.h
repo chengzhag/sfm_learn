@@ -66,7 +66,7 @@ namespace sky {
 
         void loadMap() {
 #ifdef DEBUG
-            cout << "BA:loading map..." << endl;
+            cout << "BA::loadMap: " << endl;
 #endif
             //加载mapPointsPos
             for (auto &mapPoints:map->mapPoints) {
@@ -83,7 +83,7 @@ namespace sky {
                             frame->camera->fx, frame->camera->fy, frame->camera->cx, frame->camera->cy);
             }
 #ifdef DEBUG
-            cout << mapPointsPos.size() << " map points" << endl;
+            cout << "\t" << mapPointsPos.size() << " map points" << endl;
 /*            int i = 0;
             for (auto &mapPoints:mapPointsPos) {
                 cout << mapPoints.second << endl;
@@ -92,7 +92,7 @@ namespace sky {
             }
             cout << "..." << endl;*/
 
-            cout << frameExtrinsics.size() << " frames" << endl;
+            cout << "\t" << frameExtrinsics.size() << " frames" << endl;
 /*            i = 0;
             for (auto &frame:frameExtrinsics) {
                 cout << frame.second << endl;
@@ -101,7 +101,7 @@ namespace sky {
             }
             cout << "..." << endl;*/
 
-            cout << cameraIntrinsics.size() << " cameras" << endl;
+            cout << "\t" << cameraIntrinsics.size() << " cameras" << endl;
 /*            i = 0;
             for (auto &camera:cameraIntrinsics) {
                 cout << camera.second << endl;
@@ -114,25 +114,25 @@ namespace sky {
 
         void bundleAdjustment() {
 #ifdef DEBUG
-            cout << "BA:processing..." << endl;
+            cout << "BA::bundleAdjustment: " << endl;
 #endif
             ceres::Problem problem;
 
 #ifdef DEBUG
-            cout << "loading frameExtrinsics..." << endl;
+            cout << "\tloading frameExtrinsics..." << endl;
 #endif
             for (auto &frameExtrinsic:frameExtrinsics)
                 problem.AddParameterBlock(frameExtrinsic.second.val, 6);
             problem.SetParameterBlockConstant(frameExtrinsics[map->frames.front()].val);
 
 #ifdef DEBUG
-            cout << "loading cameraIntrinsics..." << endl;
+            cout << "\tloading cameraIntrinsics..." << endl;
 #endif
             for (auto &cameraIntrinsic:cameraIntrinsics)
                 problem.AddParameterBlock(cameraIntrinsic.second.val, 4);
 
 #ifdef DEBUG
-            cout << "loading mapPointsPos..." << endl;
+            cout << "\tloading mapPointsPos..." << endl;
 #endif
             ceres::LossFunction *lossFunction = new ceres::HuberLoss(4);
             for (auto &mapPointPos:mapPointsPos) {
@@ -151,7 +151,7 @@ namespace sky {
             }
 
 #ifdef DEBUG
-            cout << "solving BA..." << endl;
+            cout << "\tsolving BA..." << endl;
 #endif
 
             ceres::Solver::Summary summary;
@@ -162,18 +162,15 @@ namespace sky {
             } else {
                 // Display statistics about the minimization
                 std::cout << "Bundle Adjustment statistics (approximated RMSE):\n"
-                          << " #views: " << frameExtrinsics.size() << "\n"
-                          << " #residuals: " << summary.num_residuals << "\n"
-                          << " Initial RMSE: " << std::sqrt(summary.initial_cost / summary.num_residuals) << "\n"
-                          << " Final RMSE: " << std::sqrt(summary.final_cost / summary.num_residuals) << "\n"
-                          << " Time (s): " << summary.total_time_in_seconds << "\n";
+                          << "    #views: " << frameExtrinsics.size() << "\n"
+                          << "    #residuals: " << summary.num_residuals << "\n"
+                          << "    Initial RMSE: " << std::sqrt(summary.initial_cost / summary.num_residuals) << "\n"
+                          << "    Final RMSE: " << std::sqrt(summary.final_cost / summary.num_residuals) << "\n"
+                          << "    Time (s): " << summary.total_time_in_seconds << "\n";
             }
         }
 
         void writeMap() {
-#ifdef DEBUG
-            cout << "BA:writing map..." << endl;
-#endif
             //写mapPointsPos
             for (auto &mapPointPos:mapPointsPos) {
                 mapPointPos.first->setPos(mapPointPos.second);

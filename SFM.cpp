@@ -19,9 +19,6 @@ namespace sky {
 
         init(image1, image2, camera);
 
-        //BA
-        BA ba;
-        ba(map);
 
 /*#ifdef CLOUDVIEWER_DEBUG
         map->visInCloudViewer();
@@ -55,6 +52,7 @@ namespace sky {
 #endif
 
         //BA
+        BA ba;
         ba(map);
 
         //可视化初始化点云
@@ -94,7 +92,7 @@ namespace sky {
                                            RANSAC, 0.999, 1.0, inlierMask);
 #ifdef DEBUG
         int nPointsFindEssentialMat = countNonZero(inlierMask);
-        cout << "findEssentialMat: " << nPointsFindEssentialMat << " valid points, " <<
+        cout << "findEssentialMat: \n\t" << nPointsFindEssentialMat << " valid points, " <<
              (float) nPointsFindEssentialMat * 100 / matchPoints1.size()
              << "% of " << matchPoints1.size() << " points are used" << endl;
 #endif
@@ -131,7 +129,7 @@ namespace sky {
 
 #ifdef DEBUG
         int nPointsRecoverPose = countNonZero(inlierMask);
-        cout << "recoverPose: " << nPointsRecoverPose << " valid points, " <<
+        cout << "recoverPose: \n\t" << nPointsRecoverPose << " valid points, " <<
              (float) nPointsRecoverPose * 100 / matchPoints1.size()
              << "% of " << matchPoints1.size() << " points are used" << endl;
 /*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
@@ -202,7 +200,7 @@ namespace sky {
         );
 
 #ifdef DEBUG
-        cout << "solvePnPRansac: " << indexInliers.rows << " valid points, " <<
+        cout << "solvePnPRansac: \n\t" << indexInliers.rows << " valid points, " <<
              (float) indexInliers.rows * 100 / points2DPnP.size()
              << "% of " << points2DPnP.size() << " points are used" << endl;
 /*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
@@ -234,7 +232,7 @@ namespace sky {
                          RANSAC, 0.999, 1.0, inlierMask);
 #ifdef DEBUG
         int nPointsFindEssentialMat = countNonZero(inlierMask);
-        cout << "findEssentialMat: " << nPointsFindEssentialMat << " valid points, " <<
+        cout << "findEssentialMat: \n\t" << nPointsFindEssentialMat << " valid points, " <<
              (float) nPointsFindEssentialMat * 100 / matchPoints1.size()
              << "% of " << matchPoints1.size() << " points are used" << endl;
 #endif
@@ -259,17 +257,23 @@ namespace sky {
 /*        triangulatePoints(keyFrame1->frame->getProjMatCV(), keyFrame2->frame->getProjMatCV(),
                           keyFrame1->matchPoints, keyFrame1->matchPoints, points4D);*/
 
-        //转换齐次坐标点，保存到Map
+        //转换齐次坐标点，保存到Map，并做局部BA
         convAndAddMappoints(inlierMask, points4D, matches);
-
-        BA ba;
-        ba(localMap);
 
         saveFrame();
     }
 
     void SFM::convAndAddMappoints(const Mat &inlierMask, const Mat &points4D,
                                   const vector<DMatch> &matches) {//归一化齐次坐标点,转换Mat
+#ifdef DEBUG
+        cout << "convAndAddMappoints: " << endl;
+#endif
+        Map::Ptr localMap(new Map);
+        //建立小地图
+        if (keyFrame1 && keyFrame2) {
+            localMap->addFrame(keyFrame1->frame);
+            localMap->addFrame(keyFrame2->frame);
+        }
 #ifdef DEBUG
         int numOldMappoints = map->mapPoints.size();
         //cout << "showing 5 samples of 3D points:" << endl;
@@ -346,16 +350,21 @@ namespace sky {
 
         }
 #ifdef DEBUG
-        cout << map->mapPoints.size() - numOldMappoints << " new 3D points added to the map" << endl
-             << map->mapPoints.size() << " in total" << endl;
+        cout << "\t" << map->mapPoints.size() - numOldMappoints << " new 3D points added to the map" << endl
+             << "\t" << map->mapPoints.size() << " in total" << endl;
 #endif
+        BA ba;
+        ba(localMap);
     }
 
 
     void SFM::matchWithFrameAndFilt(vector<DMatch> &matches) {
+#ifdef DEBUG
+        cout << "matchWithFrameAndFilt keypoints: " << endl;
+#endif
         matcher->match(keyFrame1->descriptors, keyFrame2->descriptors, matches, noArray());
 #ifdef DEBUG
-        cout << "found " << matches.size() << " keypoints matched with last frame" << endl;
+        cout << "\tfound " << matches.size() << " keypoints matched with last frame" << endl;
 #endif
         //筛选匹配点
         filtMatches(matches);
@@ -381,13 +390,13 @@ namespace sky {
         }
         matches = goodMatches;
 #ifdef DEBUG
-        cout << "found " << matches.size() << " good matches" << endl;
+        cout << "\tfound " << matches.size() << " good matches" << endl;
 #endif
     }
 
     void SFM::detectAndCompute() {
 #ifdef DEBUG
-        cout << "finding keypoints and extracting descriptors..." << endl;
+        cout << "detectAndCompute features: " << endl;
 #endif
         feature2D->detect(keyFrame2->image, keyFrame2->keyPoints, noArray());
         feature2D->compute(keyFrame2->image, keyFrame2->keyPoints, keyFrame2->descriptors);
@@ -397,12 +406,6 @@ namespace sky {
         //加载新帧
         Frame::Ptr frame(new Frame(camera, image));
         keyFrame2 = KeyFrame::Ptr(new KeyFrame(frame, image));
-        //建立小地图
-        if (keyFrame1 && keyFrame2) {
-            localMap = Map::Ptr(new Map);
-            localMap->addFrame(keyFrame1->frame);
-            localMap->addFrame(keyFrame2->frame);
-        }
     }
 
     void SFM::saveFrame() {

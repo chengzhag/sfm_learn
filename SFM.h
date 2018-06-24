@@ -39,7 +39,6 @@ namespace sky {
         };
 
         KeyFrame::Ptr keyFrame1, keyFrame2;
-        Map::Ptr localMap;
 
     public:
         SFM(const cv::Ptr<cv::Feature2D> &feature2D,
