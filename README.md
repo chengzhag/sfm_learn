@@ -14,12 +14,16 @@
 ![2D2D](images/2D2D.png)
 2. 之后每帧与全局地图中上一帧范围内的点匹配，解3D-2D，三角化后向全局地图添加新点：
 ![3D2D](images/3D2D.png)
+3. 进行Bundle Adjustment前：
+![3D2D](images/beforeBA.png)
+3. 进行Bundle Adjustment后：
+![3D2D](images/afterBA.png)
 
 计划：
-1.  完成SFM的BA代码
-2.  改进匹配点、地图点筛选方法
-3.  每次解3D-2D后，做一次局部BA优化
-4.  学习SLAM的实现，开始向SLAM转化
+* 如有需要，继续改进SFM的效果
+* 从SFM的实现转向SLAM
+
+
 
 # 实现
 
