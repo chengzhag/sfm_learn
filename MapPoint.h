@@ -29,9 +29,15 @@ namespace sky {
                 descriptor(descriptor),
                 rgb(rgb) {}
 
-        inline cv::Point3f getPosCV() const {
-            return cv::Point3f(pos(0, 0), pos(1, 0), pos(2, 0));
+        template <typename T>
+        cv::Point3_<T> getPosPoint3_CV() const {
+            return cv::Point3_<T>(pos(0, 0), pos(1, 0), pos(2, 0));
         }
+
+        template <typename T>
+        cv::Matx<T,1,3> getPosMatx13() const{
+            return cv::Matx<T,1,3>(pos(0, 0), pos(1, 0), pos(2, 0));
+        };
 
         void addObervedFrame(const Frame::Ptr &observedFrame,const cv::Point2d &pixelCoor) {
             if (observedFrame)

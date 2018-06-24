@@ -50,6 +50,16 @@ namespace sky {
             return TwcCVR;
         }
 
+        template<typename T>
+        cv::Matx<T, 1, 3> getAngleAxisWcMatxCV() {
+            Sophus::AngleAxisd angleAxis(T_c_w.so3().matrix());
+            auto axis = angleAxis.angle() * angleAxis.axis();
+            cv::Matx<T, 1, 3> angleAxisCV(axis[0],axis[1],axis[2]);
+            return angleAxisCV;
+        };
+
+
+
 
 /*        cv::Mat getProjMatCV() {
             return camera->getKMatCV()*getTcw34MatCV();

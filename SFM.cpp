@@ -25,7 +25,7 @@ namespace sky {
 
         //3D-2D
 
-        for (; imageDirIt != imagesDir.end() - 4; ++imageDirIt) {
+        for (; imageDirIt != imagesDir.end() - 7; ++imageDirIt) {
             Mat image = imread(*imageDirIt);
 #ifdef DEBUG
             cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
@@ -40,7 +40,7 @@ namespace sky {
         //输出点云信息
 #ifdef DEBUG
         for (auto &mapPoints:map->mapPoints) {
-            cout << "MapPoint " << mapPoints->getPosCV() << endl;
+            cout << "MapPoint " << mapPoints->getPosPoint3_CV<float>() << endl;
             cout << " has " << mapPoints->observedFrames.size() << " oberved frames" << endl;
         }
 #endif
@@ -52,6 +52,7 @@ namespace sky {
 
         //BA
         BA ba(map);
+        ba.loadMap();
         ba.bundleAdjustment();
         ba.writeMap();
 
@@ -158,7 +159,7 @@ namespace sky {
         vector<Point3f> points3D;
         for (MapPoint::Ptr &point:map->mapPoints) {
             if (keyFrame1->frame->isInFrame(point->pos)) {
-                points3D.push_back(point->getPosCV());
+                points3D.push_back(point->getPosPoint3_CV<float>());
                 descriptorsMap.push_back(point->descriptor);
             }
         }
