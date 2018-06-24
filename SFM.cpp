@@ -49,6 +49,12 @@ namespace sky {
 #ifdef CLOUDVIEWER_DEBUG
         map->visInCloudViewer();
 #endif
+
+        //BA
+        BA ba(map);
+        ba.bundleAdjustment();
+        ba.writeMap();
+
     }
 
     void SFM::init(Mat &image1, Mat &image2, Camera::Ptr camera) {
@@ -240,7 +246,7 @@ namespace sky {
 #endif*/
         }
         Mat points4D;
-        triangulatePoints(keyFrame1->frame->getTcw34MatCV(), keyFrame2->frame->getTcw34MatCV(),
+        triangulatePoints(keyFrame1->frame->getTcw34MatCV(CV_32F), keyFrame2->frame->getTcw34MatCV(CV_32F),
                           matchPointsNorm1, matchPointsNorm2, points4D);
 /*        triangulatePoints(keyFrame1->frame->getProjMatCV(), keyFrame2->frame->getProjMatCV(),
                           keyFrame1->matchPoints, keyFrame1->matchPoints, points4D);*/
@@ -250,7 +256,8 @@ namespace sky {
 
     }
 
-    void SFM::convAndAddMappoints(const Mat &inlierMask, const Mat &points4D, const vector<DMatch> &matches) {//归一化齐次坐标点,转换Mat
+    void SFM::convAndAddMappoints(const Mat &inlierMask, const Mat &points4D,
+                                  const vector<DMatch> &matches) {//归一化齐次坐标点,转换Mat
 #ifdef DEBUG
         int numOldMappoints = map->mapPoints.size();
         //cout << "showing 5 samples of 3D points:" << endl;

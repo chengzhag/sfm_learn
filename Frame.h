@@ -29,17 +29,25 @@ namespace sky {
 
         Vector3d getCamCenterEigen() const;
 
-        cv::Mat getTcwMatCV() {
-            cv::Mat TcwCV;
+        cv::Mat getTcwMatCV(int rtype) {
+            cv::Mat TcwCV, TcwCVR;
             cv::eigen2cv(T_c_w.matrix(), TcwCV);
-            return TcwCV;
+            TcwCV.convertTo(TcwCVR, rtype);
+            return TcwCVR;
         }
 
-        cv::Mat getTcw34MatCV() {
-            auto TcwCV = getTcwMatCV();
+        cv::Mat getTcw34MatCV(int rtype) {
+            auto TcwCV = getTcwMatCV(rtype);
             Mat Tcw34;
-            TcwCV(cv::Range(0, 3), cv::Range(0, 4)).convertTo(Tcw34, CV_32FC1);
+            TcwCV(cv::Range(0, 3), cv::Range(0, 4)).convertTo(Tcw34, rtype);
             return Tcw34;
+        }
+
+        cv::Mat getTwcMatCV(int rtype) {
+            cv::Mat TwcCV, TwcCVR;
+            cv::eigen2cv(T_c_w.inverse().matrix(), TwcCV);
+            TwcCV.convertTo(TwcCVR, rtype);
+            return TwcCVR;
         }
 
 
