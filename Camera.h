@@ -20,6 +20,14 @@ namespace sky {
         Camera(float fx, float fy, float cx, float cy) :
                 fx(fx), fy(fy), cx(cx), cy(cy) {}
 
+        template<typename T>
+        void setIntrinsic(Matx<T, 1, 4> intrinsic) {
+            fx=intrinsic(0);
+            fy=intrinsic(1);
+            cx=intrinsic(2);
+            cy=intrinsic(3);
+        }
+
         //坐标转换
 
         Vector3d world2camera(const Vector3d &p_w, const SE3 &T_c_w);
@@ -50,7 +58,7 @@ namespace sky {
         }
 
         cv::Mat getKMatCV() {
-            Mat K=(Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+            Mat K = (Mat_<float>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
             return K;
         }
     };

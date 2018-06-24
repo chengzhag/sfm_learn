@@ -39,6 +39,13 @@ namespace sky {
             return cv::Matx<T,1,3>(pos(0, 0), pos(1, 0), pos(2, 0));
         };
 
+        template <typename T>
+        void setPos(cv::Matx<T,1,3> posMatx13){
+            pos(0)=posMatx13(0);
+            pos(1)=posMatx13(1);
+            pos(2)=posMatx13(2);
+        }
+
         void addObervedFrame(const Frame::Ptr &observedFrame,const cv::Point2d &pixelCoor) {
             if (observedFrame)
                 observedFrames.push_back(

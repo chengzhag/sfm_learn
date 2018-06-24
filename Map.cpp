@@ -48,7 +48,7 @@ namespace sky {
         int indexFrame = 0;
         for (auto &frame:frames) {
             Eigen::Matrix4f camPose;
-            auto T_c_w = frame->T_c_w.inverse().matrix();
+            auto T_c_w = frame->Tcw.inverse().matrix();
             for (int i = 0; i < camPose.rows(); ++i)
                 for (int j = 0; j < camPose.cols(); ++j)
                     camPose(i, j) = T_c_w(i, j);

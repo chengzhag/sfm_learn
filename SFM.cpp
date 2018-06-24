@@ -25,7 +25,7 @@ namespace sky {
 
         //3D-2D
 
-        for (; imageDirIt != imagesDir.end() - 7; ++imageDirIt) {
+        for (; imageDirIt != imagesDir.end(); ++imageDirIt) {
             Mat image = imread(*imageDirIt);
 #ifdef DEBUG
             cout << endl << "==============Adding image: " + *imageDirIt << "==============" << endl;
@@ -38,12 +38,12 @@ namespace sky {
         }
 
         //输出点云信息
-#ifdef DEBUG
+/*#ifdef DEBUG
         for (auto &mapPoints:map->mapPoints) {
             cout << "MapPoint " << mapPoints->getPosPoint3_CV<float>() << endl;
             cout << " has " << mapPoints->observedFrames.size() << " oberved frames" << endl;
         }
-#endif
+#endif*/
 
         //可视化初始化点云
 #ifdef CLOUDVIEWER_DEBUG
@@ -56,6 +56,10 @@ namespace sky {
         ba.bundleAdjustment();
         ba.writeMap();
 
+        //可视化初始化点云
+#ifdef CLOUDVIEWER_DEBUG
+        map->visInCloudViewer();
+#endif
     }
 
     void SFM::init(Mat &image1, Mat &image2, Camera::Ptr camera) {
@@ -117,7 +121,7 @@ namespace sky {
                     points4D);
         Eigen::Matrix3d eigenR2;
         cv2eigen(R, eigenR2);
-        keyFrame2->frame->T_c_w = SE3(
+        keyFrame2->frame->Tcw = SE3(
                 eigenR2,
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
@@ -130,7 +134,7 @@ namespace sky {
              << "% of " << matchPoints1.size() << " points are used" << endl;
 /*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
         cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
-        cout << "2D-2D frame2 SE3: " << endl << keyFrame2->frame->T_c_w << endl;
+        cout << "2D-2D frame2 SE3: " << endl << keyFrame2->frame->Tcw << endl;
         cout << "2D-2D frame2 Tcw: " << endl << keyFrame2->frame->getTcwMatCV() << endl << endl;
         cout << "2D-2D frame2 ProjMat: " << endl << keyFrame2->frame->getTcw34MatCV() << endl << endl;*/
 #endif
@@ -192,7 +196,7 @@ namespace sky {
 
         //TODO: 局部BA，参考slambook: project/0.4
 
-        keyFrame2->frame->T_c_w = SE3(
+        keyFrame2->frame->Tcw = SE3(
                 SO3(r.at<double>(0, 0), r.at<double>(1, 0), r.at<double>(2, 0)),
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
         );
@@ -203,7 +207,7 @@ namespace sky {
              << "% of " << points2DPnP.size() << " points are used" << endl;
 /*        cout << "2D-2D frame2 R: " << R.size << endl << R << endl;
         cout << "2D-2D frame2 t: " << t.size << endl << t << endl;
-        cout << "2D-2D frame2 SE3: " << endl << keyFrame2->frame->T_c_w << endl;
+        cout << "2D-2D frame2 SE3: " << endl << keyFrame2->frame->Tcw << endl;
         cout << "2D-2D frame2 Tcw: " << endl << keyFrame2->frame->getTcwMatCV() << endl << endl;
         cout << "2D-2D frame2 ProjMat: " << endl << keyFrame2->frame->getTcw34MatCV() << endl << endl;*/
 #endif

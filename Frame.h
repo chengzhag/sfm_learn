@@ -15,7 +15,7 @@ namespace sky {
     class Frame {
     public:
         typedef shared_ptr<Frame> Ptr;
-        SE3 T_c_w;      // transform from world to camera
+        SE3 Tcw;      // transform from world to camera
         Camera::Ptr camera;     // Pinhole RGBD Camera model
         int cols, rows;
 
@@ -31,7 +31,7 @@ namespace sky {
 
         cv::Mat getTcwMatCV(int rtype) {
             cv::Mat TcwCV, TcwCVR;
-            cv::eigen2cv(T_c_w.matrix(), TcwCV);
+            cv::eigen2cv(Tcw.matrix(), TcwCV);
             TcwCV.convertTo(TcwCVR, rtype);
             return TcwCVR;
         }
@@ -45,18 +45,28 @@ namespace sky {
 
         cv::Mat getTwcMatCV(int rtype) {
             cv::Mat TwcCV, TwcCVR;
-            cv::eigen2cv(T_c_w.inverse().matrix(), TwcCV);
+            cv::eigen2cv(Tcw.inverse().matrix(), TwcCV);
             TwcCV.convertTo(TwcCVR, rtype);
             return TwcCVR;
         }
 
         template<typename T>
         cv::Matx<T, 1, 3> getAngleAxisWcMatxCV() {
-            Sophus::AngleAxisd angleAxis(T_c_w.so3().matrix());
+            Sophus::AngleAxisd angleAxis(Tcw.so3().matrix());
             auto axis = angleAxis.angle() * angleAxis.axis();
             cv::Matx<T, 1, 3> angleAxisCV(axis[0],axis[1],axis[2]);
             return angleAxisCV;
         };
+
+        template<typename T>
+        void setTcw(Matx<T,2,3> angleAxisAndTranslation){
+            Tcw.so3()=SO3(angleAxisAndTranslation(0,0),
+                            angleAxisAndTranslation(0,1),
+                            angleAxisAndTranslation(0,2));
+            Tcw.translation()=Vector3d(angleAxisAndTranslation(1,0),
+                                         angleAxisAndTranslation(1,1),
+                                         angleAxisAndTranslation(1,2));
+        }
 
 
 
