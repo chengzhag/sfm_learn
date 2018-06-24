@@ -57,20 +57,16 @@ namespace sky {
             }
         };
 
-        ceres::Problem problem;
         Map::Ptr map;
+        ceres::Solver::Options ceres_config_options;
 
         unordered_map<Camera::Ptr, Matx14d> cameraIntrinsics;
         unordered_map<Frame::Ptr, Matx23d> frameExtrinsics;
         unordered_map<MapPoint::Ptr, Matx13d> mapPointsPos;
 
-    public:
-
-        BA(const Map::Ptr &map) : map(map) {}
-
         void loadMap() {
 #ifdef DEBUG
-            cout << endl << "==============BA:loading map==============" << endl << endl;
+            cout << "BA:loading map..." << endl;
 #endif
             //加载mapPointsPos
             for (auto &mapPoints:map->mapPoints) {
@@ -86,7 +82,7 @@ namespace sky {
                     cameraIntrinsics[frame->camera] = Matx14d(
                             frame->camera->fx, frame->camera->fy, frame->camera->cx, frame->camera->cy);
             }
-#ifdef DEBUG
+/*#ifdef DEBUG
             cout << mapPointsPos.size() << " map points" << endl;
             int i = 0;
             for (auto &mapPoints:mapPointsPos) {
@@ -113,13 +109,14 @@ namespace sky {
                 if (i >= 5)break;
             }
             cout << "..." << endl;
-#endif
+#endif*/
         }
 
         void bundleAdjustment() {
 #ifdef DEBUG
-            cout << "==============BA:processing==============" << endl;
+            cout << "BA:processing..." << endl;
 #endif
+            ceres::Problem problem;
 
 #ifdef DEBUG
             cout << "loading frameExtrinsics..." << endl;
@@ -156,13 +153,6 @@ namespace sky {
 #ifdef DEBUG
             cout << "solving BA..." << endl;
 #endif
-            ceres::Solver::Options ceres_config_options;
-            ceres_config_options.minimizer_progress_to_stdout = false;
-            ceres_config_options.logging_type = ceres::SILENT;
-            ceres_config_options.num_threads = 1;
-            ceres_config_options.preconditioner_type = ceres::JACOBI;
-            ceres_config_options.linear_solver_type = ceres::SPARSE_SCHUR;
-            ceres_config_options.sparse_linear_algebra_library_type = ceres::EIGEN_SPARSE;
 
             ceres::Solver::Summary summary;
             ceres::Solve(ceres_config_options, &problem, &summary);
@@ -171,20 +161,18 @@ namespace sky {
                 std::cout << "Bundle Adjustment failed." << std::endl;
             } else {
                 // Display statistics about the minimization
-                std::cout << std::endl
-                          << "Bundle Adjustment statistics (approximated RMSE):\n"
+                std::cout << "Bundle Adjustment statistics (approximated RMSE):\n"
                           << " #views: " << frameExtrinsics.size() << "\n"
                           << " #residuals: " << summary.num_residuals << "\n"
                           << " Initial RMSE: " << std::sqrt(summary.initial_cost / summary.num_residuals) << "\n"
                           << " Final RMSE: " << std::sqrt(summary.final_cost / summary.num_residuals) << "\n"
-                          << " Time (s): " << summary.total_time_in_seconds << "\n"
-                          << std::endl;
+                          << " Time (s): " << summary.total_time_in_seconds << "\n";
             }
         }
 
         void writeMap() {
 #ifdef DEBUG
-            cout << endl << "==============BA:writing map==============" << endl << endl;
+            cout << "BA:writing map..." << endl;
 #endif
             //写mapPointsPos
             for (auto &mapPointPos:mapPointsPos) {
@@ -199,6 +187,34 @@ namespace sky {
                 cameraIntrinsic.first->setIntrinsic(cameraIntrinsic.second);
             }
         }
+
+        void clear() {
+            map = nullptr;
+
+            cameraIntrinsics.clear();
+            frameExtrinsics.clear();
+            mapPointsPos.clear();
+        }
+
+    public:
+
+        BA() {
+            ceres_config_options.minimizer_progress_to_stdout = false;
+            ceres_config_options.logging_type = ceres::SILENT;
+            ceres_config_options.num_threads = 1;
+            ceres_config_options.preconditioner_type = ceres::JACOBI;
+            ceres_config_options.linear_solver_type = ceres::SPARSE_SCHUR;
+            ceres_config_options.sparse_linear_algebra_library_type = ceres::EIGEN_SPARSE;
+        }
+
+        void operator()(Map::Ptr &map) {
+            this->map = map;
+            loadMap();
+            bundleAdjustment();
+            writeMap();
+            clear();
+        }
+
 
     };
 

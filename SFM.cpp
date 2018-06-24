@@ -19,6 +19,10 @@ namespace sky {
 
         init(image1, image2, camera);
 
+        //BA
+        BA ba;
+        ba(map);
+
 /*#ifdef CLOUDVIEWER_DEBUG
         map->visInCloudViewer();
 #endif*/
@@ -51,10 +55,7 @@ namespace sky {
 #endif
 
         //BA
-        BA ba(map);
-        ba.loadMap();
-        ba.bundleAdjustment();
-        ba.writeMap();
+        ba(map);
 
         //可视化初始化点云
 #ifdef CLOUDVIEWER_DEBUG
