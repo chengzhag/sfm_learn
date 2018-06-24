@@ -15,9 +15,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad4cc4b4-99f2-48db-935f-f97f9f0e4516" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/BA.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/BA.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BA.h" beforeDir="false" afterPath="$PROJECT_DIR$/BA.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SFM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SFM.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SFM.h" beforeDir="false" afterPath="$PROJECT_DIR$/SFM.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/cmake-build-release/" />
@@ -37,11 +36,11 @@
     <splitter split-orientation="horizontal" split-proportion="0.5">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="SFM.cpp" pinned="false" current-in-tab="true">
+          <file leaf-file-name="SFM.cpp" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/SFM.cpp">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="9">
-                  <caret line="234" column="39" selection-start-line="234" selection-start-column="39" selection-end-line="234" selection-end-column="39" />
+                <state relative-caret-position="309">
+                  <caret line="254" column="52" selection-start-line="254" selection-start-column="52" selection-end-line="254" selection-end-column="52" />
                   <folding>
                     <element signature="e#46#62#0" expanded="true" />
                     <element signature="e#804#881#0" expanded="true" />
@@ -62,22 +61,21 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="BA.cpp" pinned="false" current-in-tab="false">
+          <file leaf-file-name="BA.cpp" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/BA.cpp">
               <provider selected="true" editor-type-id="text-editor">
-                <state>
-                  <caret column="2" selection-start-column="2" selection-end-column="2" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="BA.h" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/BA.h">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="360">
-                  <caret line="153" column="23" selection-start-line="153" selection-start-column="23" selection-end-line="153" selection-end-column="23" />
+                <state relative-caret-position="120">
+                  <caret line="8" selection-start-line="8" selection-end-line="8" />
                   <folding>
-                    <element signature="e#93#117#0" expanded="true" />
+                    <element signature="e#87#1909#0" />
+                    <element signature="e#1068#1297#0" />
+                    <element signature="e#1372#1592#0" />
+                    <element signature="e#1669#1892#0" />
+                    <element signature="e#1919#4506#0" />
+                    <element signature="e#4516#5052#0" />
+                    <element signature="e#5062#5223#0" />
+                    <element signature="e#4909#5345#0" />
+                    <element signature="e#5323#5494#0" />
                   </folding>
                 </state>
               </provider>
@@ -108,7 +106,7 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="Frame.h" pinned="false" current-in-tab="true">
+          <file leaf-file-name="Frame.h" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Frame.h">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="230">
@@ -143,6 +141,20 @@
                   <caret line="22" column="28" selection-start-line="22" selection-start-column="28" selection-end-line="22" selection-end-column="28" />
                   <folding>
                     <element signature="e#428#440#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="BA.h" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/BA.h">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-13">
+                  <caret line="64" column="41" lean-forward="true" selection-start-line="64" selection-start-column="41" selection-end-line="64" selection-end-column="41" />
+                  <folding>
+                    <element signature="e#93#117#0" expanded="true" />
+                    <element signature="e#333#1569#1" />
+                    <element signature="e#509#1559#0" />
                   </folding>
                 </state>
               </provider>
@@ -200,10 +212,10 @@
         <option value="$PROJECT_DIR$/MapPoint.h" />
         <option value="$PROJECT_DIR$/Frame.h" />
         <option value="$PROJECT_DIR$/Camera.h" />
-        <option value="$PROJECT_DIR$/BA.cpp" />
         <option value="$PROJECT_DIR$/SFM.h" />
-        <option value="$PROJECT_DIR$/BA.h" />
         <option value="$PROJECT_DIR$/SFM.cpp" />
+        <option value="$PROJECT_DIR$/BA.h" />
+        <option value="$PROJECT_DIR$/BA.cpp" />
       </list>
     </option>
   </component>
@@ -330,23 +342,24 @@
       <workItem from="1529198732396" duration="2240000" />
       <workItem from="1529202107040" duration="15052000" />
       <workItem from="1529497759238" duration="10662000" />
-      <workItem from="1529821181442" duration="21430000" />
+      <workItem from="1529821181442" duration="21812000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="167191000" />
+    <option name="totallyTimeSpent" value="167573000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1883" height="907" extended-state="4" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.105682425" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Messages" order="7" weight="0.39899623" />
+      <window_info active="true" anchor="bottom" id="Messages" order="7" visible="true" weight="0.39899623" />
       <window_info anchor="bottom" id="CMake" order="11" weight="0.32912987" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32371393" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32873276" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32873276" />
       <window_info anchor="bottom" id="Version Control" order="10" weight="0.32912987" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32912987" />
@@ -394,7 +407,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="121" />
+      <option name="time" value="122" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -803,23 +816,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/BA.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="2" selection-start-column="2" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BA.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="153" column="23" selection-start-line="153" selection-start-column="23" selection-end-line="153" selection-end-column="23" />
-          <folding>
-            <element signature="e#93#117#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/include/opencv2/calib3d.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="293">
@@ -839,11 +835,41 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SFM.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9">
-          <caret line="234" column="39" selection-start-line="234" selection-start-column="39" selection-end-line="234" selection-end-column="39" />
+        <state relative-caret-position="309">
+          <caret line="254" column="52" selection-start-line="254" selection-start-column="52" selection-end-line="254" selection-end-column="52" />
           <folding>
             <element signature="e#46#62#0" expanded="true" />
             <element signature="e#804#881#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BA.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
+          <folding>
+            <element signature="e#87#1909#0" />
+            <element signature="e#1068#1297#0" />
+            <element signature="e#1372#1592#0" />
+            <element signature="e#1669#1892#0" />
+            <element signature="e#1919#4506#0" />
+            <element signature="e#4516#5052#0" />
+            <element signature="e#5062#5223#0" />
+            <element signature="e#4909#5345#0" />
+            <element signature="e#5323#5494#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BA.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-13">
+          <caret line="64" column="41" lean-forward="true" selection-start-line="64" selection-start-column="41" selection-end-line="64" selection-end-column="41" />
+          <folding>
+            <element signature="e#93#117#0" expanded="true" />
+            <element signature="e#333#1569#1" />
+            <element signature="e#509#1559#0" />
           </folding>
         </state>
       </provider>
