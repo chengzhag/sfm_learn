@@ -70,6 +70,7 @@ namespace sky {
 #endif
         //检测特征点并匹配
         pushImage(image1, camera);
+        saveFrame();
         detectAndCompute();
         pushImage(image2, camera);
         detectAndCompute();
@@ -149,7 +150,7 @@ namespace sky {
 #ifdef CVVISUAL_DEBUGMODE
 
 #endif
-
+        saveFrame();
 
     }
 
@@ -195,8 +196,6 @@ namespace sky {
         Mat R;
         cv::Rodrigues(r, R);
 
-        //TODO: 局部BA，参考slambook: project/0.4
-
         keyFrame2->frame->Tcw = SE3(
                 SO3(r.at<double>(0, 0), r.at<double>(1, 0), r.at<double>(2, 0)),
                 Vector3d(t.at<double>(0, 0), t.at<double>(1, 0), t.at<double>(2, 0))
@@ -213,7 +212,10 @@ namespace sky {
         cout << "2D-2D frame2 ProjMat: " << endl << keyFrame2->frame->getTcw34MatCV() << endl << endl;*/
 #endif
 
-
+        if ((float) indexInliers.rows < 30) {
+            cout << "current frame has bad matched points!" << endl;
+            return;
+        }
 
 
         //匹配帧间特征点
@@ -260,6 +262,10 @@ namespace sky {
         //转换齐次坐标点，保存到Map
         convAndAddMappoints(inlierMask, points4D, matches);
 
+        BA ba;
+        ba(localMap);
+
+        saveFrame();
     }
 
     void SFM::convAndAddMappoints(const Mat &inlierMask, const Mat &points4D,
@@ -269,6 +275,8 @@ namespace sky {
         //cout << "showing 5 samples of 3D points:" << endl;
 #endif
         for (int i = 0; i < points4D.cols; ++i) {
+            MapPoint::Ptr mapPoint;
+
             //如果是outlier，跳过
             if (!inlierMask.empty() && !inlierMask.at<uint8_t>(i, 0))
                 continue;
@@ -278,59 +286,64 @@ namespace sky {
 
             //如果是上一帧加到地图中的点，更新描述子、加入观测帧后跳过
             if (keyFrame1->inlierPoints.find(matches[i].queryIdx) != keyFrame1->inlierPoints.end()) {
+                mapPoint = keyFrame1->inlierPoints[matches[i].queryIdx];
                 //更新描述子
-                keyFrame1->inlierPoints[matches[i].queryIdx]->descriptor = descriptor;
+                mapPoint->descriptor = descriptor;
                 //加入观测帧
-                keyFrame1->inlierPoints[matches[i].queryIdx]->addObervedFrame(
+                mapPoint->addObervedFrame(
                         keyFrame2->frame, keyFrame2->keyPoints[matches[i].trainIdx].pt);
                 //记录当前帧加入地图的mapPoint和特征点下标
-                keyFrame2->inlierPoints[matches[i].trainIdx] =
-                        keyFrame1->inlierPoints[matches[i].queryIdx];
-                continue;
-            }
+                keyFrame2->inlierPoints[matches[i].trainIdx] = mapPoint;
 
-            // 转换齐次坐标
-            Mat x = points4D.col(i);
+            } else {
 
-            //向地图增加点
-            //获取颜色
-            Vec3b rgb;
-            if (keyFrame2->image.type() == CV_8UC3) {
-                rgb = keyFrame2->image.at<Vec3b>(keyFrame2->keyPoints[matches[i].trainIdx].pt);
-                swap(rgb[0], rgb[2]);
-            } else if (keyFrame2->image.type() == CV_8UC1) {
-                cvtColor(keyFrame2->image.at<uint8_t>(keyFrame2->keyPoints[matches[i].trainIdx].pt),
-                         rgb,
-                         COLOR_GRAY2RGB);
-            }
+                //转换齐次坐标
+                Mat x = points4D.col(i);
 
-            MapPoint::Ptr mapPoint;
-            if (x.type() == CV_32FC1) {
-                x /= x.at<float>(3, 0); // 归一化
-                mapPoint = MapPoint::Ptr(new MapPoint(Vector3d(x.at<float>(0, 0),
-                                                               x.at<float>(1, 0),
-                                                               x.at<float>(2, 0)),
-                                                      descriptor, rgb
-                ));
-            } else if (x.type() == CV_64FC1) {
-                x /= x.at<double>(3, 0);
-                mapPoint = MapPoint::Ptr(new MapPoint(Vector3d(x.at<double>(0, 0),
-                                                               x.at<double>(1, 0),
-                                                               x.at<double>(2, 0)),
-                                                      descriptor, rgb
-                ));
-            }
+                //向地图增加点
+                //获取颜色
+                Vec3b rgb;
+                if (keyFrame2->image.type() == CV_8UC3) {
+                    rgb = keyFrame2->image.at<Vec3b>(keyFrame2->keyPoints[matches[i].trainIdx].pt);
+                    swap(rgb[0], rgb[2]);
+                } else if (keyFrame2->image.type() == CV_8UC1) {
+                    cvtColor(keyFrame2->image.at<uint8_t>(keyFrame2->keyPoints[matches[i].trainIdx].pt),
+                             rgb,
+                             COLOR_GRAY2RGB);
+                }
 
-            //记录当前帧加入地图的mapPoint和特征点下标
-            keyFrame2->inlierPoints[matches[i].trainIdx] = mapPoint;
+
+                if (x.type() == CV_32FC1) {
+                    x /= x.at<float>(3, 0); // 归一化
+                    mapPoint = MapPoint::Ptr(new MapPoint(Vector3d(x.at<float>(0, 0),
+                                                                   x.at<float>(1, 0),
+                                                                   x.at<float>(2, 0)),
+                                                          descriptor, rgb
+                    ));
+                } else if (x.type() == CV_64FC1) {
+                    x /= x.at<double>(3, 0);
+                    mapPoint = MapPoint::Ptr(new MapPoint(Vector3d(x.at<double>(0, 0),
+                                                                   x.at<double>(1, 0),
+                                                                   x.at<double>(2, 0)),
+                                                          descriptor, rgb
+                    ));
+                }
+
+                //记录当前帧加入地图的mapPoint和特征点下标
+                keyFrame2->inlierPoints[matches[i].trainIdx] = mapPoint;
 
 /*#ifdef DEBUG
             if (i < 5)
                 cout << mapPoint->pos << endl << endl;
 #endif*/
-            mapPoint->addObervedFrame(keyFrame1->frame, keyFrame1->keyPoints[matches[i].queryIdx].pt);
-            mapPoint->addObervedFrame(keyFrame2->frame, keyFrame2->keyPoints[matches[i].trainIdx].pt);
-            map->addMapPoint(mapPoint);
+                mapPoint->addObervedFrame(keyFrame1->frame, keyFrame1->keyPoints[matches[i].queryIdx].pt);
+                mapPoint->addObervedFrame(keyFrame2->frame, keyFrame2->keyPoints[matches[i].trainIdx].pt);
+                map->addMapPoint(mapPoint);
+                //加入到小地图
+                localMap->addMapPoint(mapPoint);
+            }
+
+
         }
 #ifdef DEBUG
         cout << map->mapPoints.size() - numOldMappoints << " new 3D points added to the map" << endl
@@ -363,7 +376,7 @@ namespace sky {
         auto maxDis = minMaxDis.second->distance;
         vector<DMatch> goodMatches;
         for (auto match:matches) {
-            if (match.distance <= 5 * minDis)
+            if (match.distance <= 4 * minDis)
                 goodMatches.push_back(match);
         }
         matches = goodMatches;
@@ -381,15 +394,19 @@ namespace sky {
     }
 
     void SFM::pushImage(Mat &image, const Camera::Ptr &camera) {
-        //释放中间变量和关键帧
-        if (keyFrame1) {
-            keyFrame1->image.release();
-            keyFrame1->descriptors.release();
-        }
         //加载新帧
-        keyFrame1 = keyFrame2;
         Frame::Ptr frame(new Frame(camera, image));
-        map->addFrame(frame);
         keyFrame2 = KeyFrame::Ptr(new KeyFrame(frame, image));
+        //建立小地图
+        if (keyFrame1 && keyFrame2) {
+            localMap = Map::Ptr(new Map);
+            localMap->addFrame(keyFrame1->frame);
+            localMap->addFrame(keyFrame2->frame);
+        }
+    }
+
+    void SFM::saveFrame() {
+        map->addFrame(keyFrame2->frame);
+        keyFrame1 = keyFrame2;
     }
 }

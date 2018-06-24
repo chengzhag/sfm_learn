@@ -39,6 +39,7 @@ namespace sky {
         };
 
         KeyFrame::Ptr keyFrame1, keyFrame2;
+        Map::Ptr localMap;
 
     public:
         SFM(const cv::Ptr<cv::Feature2D> &feature2D,
@@ -64,6 +65,9 @@ namespace sky {
 
         //加载新帧
         void pushImage(Mat &image, const Camera::Ptr &camera);
+
+        //存储新帧
+        void saveFrame();
 
         //检测特征点，提取描述子
         void detectAndCompute();

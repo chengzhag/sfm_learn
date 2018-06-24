@@ -82,34 +82,34 @@ namespace sky {
                     cameraIntrinsics[frame->camera] = Matx14d(
                             frame->camera->fx, frame->camera->fy, frame->camera->cx, frame->camera->cy);
             }
-/*#ifdef DEBUG
+#ifdef DEBUG
             cout << mapPointsPos.size() << " map points" << endl;
-            int i = 0;
+/*            int i = 0;
             for (auto &mapPoints:mapPointsPos) {
                 cout << mapPoints.second << endl;
                 ++i;
                 if (i >= 5)break;
             }
-            cout << "..." << endl;
+            cout << "..." << endl;*/
 
             cout << frameExtrinsics.size() << " frames" << endl;
-            i = 0;
+/*            i = 0;
             for (auto &frame:frameExtrinsics) {
                 cout << frame.second << endl;
                 ++i;
                 if (i >= 5)break;
             }
-            cout << "..." << endl;
+            cout << "..." << endl;*/
 
             cout << cameraIntrinsics.size() << " cameras" << endl;
-            i = 0;
+/*            i = 0;
             for (auto &camera:cameraIntrinsics) {
                 cout << camera.second << endl;
                 ++i;
                 if (i >= 5)break;
             }
-            cout << "..." << endl;
-#endif*/
+            cout << "..." << endl;*/
+#endif
         }
 
         void bundleAdjustment() {
